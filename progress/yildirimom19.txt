@@ -1,0 +1,3 @@
+Week 1 (6-12 Nov): Completed the steps in "GithubInstructions.pdf"
+- GitHub Organization and repository created.
+- Text file created under 'progress' directory to track personal progress.
