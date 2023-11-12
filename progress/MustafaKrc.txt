@@ -1,0 +1,3 @@
+Week 1 (6 - 12 November):
+    - Steps in "GithubInstructions.pdf" have been completed.
+    - Text file created under 'progress' directory to track personal progress.
