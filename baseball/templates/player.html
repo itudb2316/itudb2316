@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Player Page</h1>
+<form method="POST" action="" novalidate>
+    {{ form.hidden_tag() }}
+    <div class="input-group mb-3">
+        {% if form.search.errors %}
+        <div class="invalid-feedback">
+            {% for error in form.username.errors %}
+            <span>{{ error }}</span>
+            {% endfor %}
+        </div>
+        {% else %}
+        {{ form.search() }}
+        {% endif %}
+        <div class="input-group-append">
+            {{ form.submit() }}
+        </div>
+    </div>
+</form>
+{% endblock content %}
