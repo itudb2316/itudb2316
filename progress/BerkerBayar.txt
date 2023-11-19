@@ -1,5 +1,12 @@
 Week 1 (6 - 12 November):
 
-- Steps in "GithubInstructions.pdf" have been completed.
-- GitHub Organization and repository created.
-- Text file created under 'progress' directory to track personal progress.
+    - Steps in "GithubInstructions.pdf" have been completed.
+    - GitHub Organization and repository created.
+    - Text file created under 'progress' directory to track personal progress.
+
+Week 2 (13-19 Nov): 
+
+    - Homepage and category (main table) pages are implemented.
+    - Homepage of the project website is implemented by team members collaboratively.
+    - A template for each subpages each representing the team members' own main tables and the other responsible tables is prepared and placed onto homepage.
+    - Beginning from this week, each team member will continue to implement his own subpage/category page on his own.
