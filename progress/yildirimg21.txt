@@ -9,3 +9,8 @@ Week 2 (13 - 19 November)
 - Homepage of the project has been implemented by team members collaboratively.
 - A template for each subpage, representing the team members' own main tables and the other responsible tables has been prepared and placed onto homepage.
 - Beginning from this week, each team member will continue to implement their own subpage/category page on their own.
+
+Week 3 (20 - 27 November)
+
+- The main searching page for batting data table has been created. 
+- The searching function for the data table has been added with several errors on the detail page that is to be fixed.
