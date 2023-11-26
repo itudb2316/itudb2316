@@ -4,7 +4,8 @@ from flask_wtf import CSRFProtect
 from .tools import RowListConverter
 # Import tables
 from app.fielding.models import Fielding
-from app.players.models import Players    
+from app.players.models import Players
+from app.batting.models import Batting
     
 def create_app():
     app = Flask(__name__)
@@ -17,14 +18,17 @@ def create_app():
     # Configure tables
     app.config['FIELDING'] = Fielding()
     app.config['PLAYERS'] = Players()
+    app.config['BATTING'] = Batting()
 
     # Register blueprints
     from app.home import home_blueprint
     from app.fielding import fielding_blueprint
     from app.players import players_blueprint
+    from app.batting import batting_blueprint
 
     app.register_blueprint(home_blueprint)
     app.register_blueprint(fielding_blueprint)
     app.register_blueprint(players_blueprint)
+    app.register_blueprint(batting_blueprint)
 
     return app
