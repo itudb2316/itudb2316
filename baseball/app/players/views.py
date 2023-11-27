@@ -52,7 +52,7 @@ def players_detail(query_list):
         flash(f'No results were found! Try again.', 'danger')
         return redirect(url_for('players.players_search'))
     
-    return render_template('players.html', result=results[0], header=current_app.config['PLAYERS'].HEADER)
+    return render_template('players_detail.html', result=results[0], header=current_app.config['PLAYERS'].HEADER)
 
 @app.route('/players/update/<row_list:transmit>', methods=["GET", "POST"])
 @app.route('/players/update/<row_list:transmit>/', methods=["GET", "POST"])

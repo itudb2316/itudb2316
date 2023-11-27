@@ -8,7 +8,7 @@ Week 2 (13 - 19 November):
     - Starting this week, individual team members will take ownership of implementing their respective subpage or category page independently.
 
 Week 3 (20- 26 November):
-    - Created players page. Searching players is currently functional.
-    - HTML templates, player model & view are created
-    - Implemented insert, edit & delete but untested.
+    - Created HTML templates, player model & view for players page.
+    - Implemented search & delete.
+    - Template code for insert & update.
     
