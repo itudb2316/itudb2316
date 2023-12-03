@@ -29,8 +29,11 @@ def players_search():
 @app.route('/players/<row_list:query>')
 @app.route('/players/<row_list:query>/')
 def players_info(query):
+    sort_by = request.args.get('sort_by', None, type=str)
+    order = request.args.get('order', None, type=str)
+    
     players = current_app.config['PLAYERS']
-    results = players.view_players(query)
+    results = players.view_players(query, sort_by, order)
     page = request.args.get('page', 1, type=int)
     per_page = current_app.config['PER_PAGE']
     pages = len(results) // per_page + 1
@@ -40,7 +43,9 @@ def players_info(query):
     if len(results) == 0:
         flash(f'No results were found! Try again.', 'danger')
         return redirect(url_for('players.players_search'))
-    return render_template('players_info.html', query=query, results=paginated_data, header=current_app.config['PLAYERS'].HEADER, page_info=page_info)
+    return render_template('players_info.html', query=query,results=paginated_data,
+                            header=current_app.config['PLAYERS'].HEADER, page_info=page_info,
+                            sort_by=sort_by, order=order)
 
 @app.route('/players/<row_list:query_list>/detail')
 @app.route('/players/<row_list:query_list>/detail/')
