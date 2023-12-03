@@ -7,3 +7,12 @@ Week 2 (13 - 19 November):
 |_ Homepage of the project is implemented by team members collaboratively.
 |_ A template for each subpages each representing the team members' own main tables and the other responsible tables is prepared and placed onto homepage.
 |_ Beginning from this week, each team member will continue to implement his own subpage/category page on his own.
+
+Week 3 (20- 26 November):
+|_ Modify code structure
+  |_ Each table has a folder
+|_ Add functionalities for the fielding table.
+  |_ Search records
+  |_ Update a record
+  |_ Delete a record 
+  |_ Insert a new record
