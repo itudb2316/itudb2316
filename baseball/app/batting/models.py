@@ -13,7 +13,7 @@ class Batting:
         
     def view_batting(self, row):
         try:
-            db = dbapi.connect(host="localhost", user="root", password="Herobrine54", database="lahman_2014") #**self.app.config['MYSQL_CONN']
+            db = dbapi.connect(**self.app.config['MYSQL_CONN']) #**self.app.config['MYSQL_CONN']
             cursor = db.cursor()
             data = list2dict(row, self.header)
             select_query = 'SELECT '
@@ -39,6 +39,93 @@ class Batting:
             result = cursor.fetchall()
             db.commit()
             return result
+        except dbapi.Error as err:
+            db.rollback()
+        finally:
+            cursor.close()
+            db.close()
+            
+    def insert_batting(self, row):
+        try:
+            db = dbapi.connect(**self.app.config['MYSQL_CONN']) 
+            cursor = db.cursor()
+            data = list2dict(row, self.header)
+            insert_query = 'INSERT INTO batting ('
+            for column in self.header:
+                insert_query += column + ', '
+            insert_query = insert_query.removesuffix(', ')
+            insert_query += ') VALUES ('
+            for i in range(len(self.header)):
+                if data[self.header[i]] == 'None':
+                    insert_query += 'NULL'
+                if self.column_types[i] == 'int':
+                    insert_query += data[self.header[i]] + ', '
+                elif self.column_types[i] == 'str':
+                    insert_query += '\'' + data[self.header[i]] + '\', '
+            insert_query = insert_query.removesuffix(', ')
+            insert_query += ')'
+            print()
+            print(insert_query)
+            cursor.execute(insert_query)
+            db.commit()
+        except dbapi.Error as err:
+            db.rollback()
+        finally:
+            cursor.close()
+            db.close()
+
+    def update_batting(self, transmit, row):
+        try:
+            db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
+            cursor = db.cursor()
+            data = list2dict(row, self.header)
+            update_query = 'UPDATE batting SET '
+            for i in range(len(self.header)):
+                if data[self.header[i]] == 'None':
+                    update_query += self.header[i] + ' = NULL AND '
+                elif self.column_types[i] == 'int':
+                    update_query += self.header[i] + ' = ' + data[self.header[i]] + ' , '
+                elif self.column_types[i] == 'str':
+                    update_query += self.header[i] + ' = \'' + data[self.header[i]] + '\' , '
+            update_query = update_query.removesuffix(' , ')
+            update_query += ' WHERE '
+            for i in range(len(self.header)):
+                if transmit[i] == 'None':
+                    update_query += self.header[i] + ' IS NULL AND '
+                elif self.column_types[i] == 'int':
+                    update_query += self.header[i] + ' = ' + transmit[i] + ' AND '
+                elif self.column_types[i] == 'str':
+                    update_query += self.header[i] + ' = \'' + transmit[i] + '\' AND '
+            update_query = update_query.removesuffix(' AND ')
+            print()
+            print(update_query)
+            cursor.execute(update_query)
+            db.commit()
+        except dbapi.Error as err:
+            db.rollback()
+        finally:
+            cursor.close()
+            db.close()
+            
+    def delete_batting(self, row):
+        try:
+            db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
+            cursor = db.cursor()
+            data = list2dict(row, self.header)
+            delete_query = 'DELETE FROM fielding WHERE '
+            for i in range(len(self.header)):
+                if data[self.header[i]] == 'None':
+                    condition = self.header[i] + ' IS NULL AND '
+                elif self.column_types[i] == 'int':
+                    condition = self.header[i] + ' = ' + data[self.header[i]] + ' AND '
+                elif self.column_types[i] == 'str':
+                    condition = self.header[i] + ' = \'' + data[self.header[i]] + '\' AND '
+                delete_query += condition
+            delete_query = delete_query.removesuffix(' AND ')
+            print()
+            print(delete_query)
+            cursor.execute(delete_query)
+            db.commit()
         except dbapi.Error as err:
             db.rollback()
         finally:

@@ -14,3 +14,9 @@ Week 3 (20 - 27 November)
 
 - The main searching page for batting data table has been created. 
 - The searching function for the data table has been added with several errors on the detail page that is to be fixed.
+
+Week 4 (28 November - 3 December)
+
+- Searching function has been fixed.
+- Delete and update functions have been successfully added to the detail page for batting.
+- Insert function has been added albeit with an error that is to be fixed in a later date.
