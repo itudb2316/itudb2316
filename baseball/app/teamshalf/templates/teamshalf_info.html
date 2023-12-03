@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Teams Half Season Page</h1>
+<article class="media content-section">
+    <div class="media-body">
+        <ul class="article-content list-group">
+            <div class="btn-group" role="group" aria-label="Basic example">
+                <a href="{{ url_for('teamshalf.teams_insert_search') }}" class="btn btn-secondary">Insert New</a>
+            </div>
+        </ul>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        {% for col in header %}
+                        <th scope="col">{{ col }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                    <tr>
+                        <th scope="row">
+                            <a class="badge badge-primary"
+                                href="{{ url_for('teamshalf.teamshalf_detail', query_list=result) }}">
+                                {{ loop.index + (page_info['page'] - 1) * page_info['per_page'] }}
+                            </a>
+                        </th>
+                        {% for entry in result %}
+                        <td>{{ entry }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <ul class="pagination justify-content-center">
+            {% if page_info['page'] > 1 %}
+            <li class="page-item">
+                <a class="page-link"
+                    href="{{ url_for('teamshalf.teamshalf_info', query=query, page=page_info['page']-1) }}"
+                    aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                    <span class="sr-only">Previous</span>
+                </a>
+            </li>
+            <li class="page-item"><a class="page-link"
+                    href="{{ url_for('teamshalf.teamshalf_info', query=query, page=1) }}">1</a>
+            </li>
+            <li class="page-item">...</li>
+            <li class="page-item"><a class="page-link"
+                    href="{{ url_for('teamshalf.teamshalf_info', query=query, page=page_info['page']-1) }}">{{
+                    page_info['page'] -1
+                    }}</a></li>
+            {% endif %}
+            <li class="page-item"><a class="page-link" href="#">{{ page_info['page'] }}</a></li>
+            {% if page_info['page'] < page_info['pages'] %} <li class="page-item"><a class="page-link"
+                    href="{{ url_for('teamshalf.teamshalf_info', query=query, page=page_info['page']+1) }}">{{
+                    page_info['page'] + 1 }}</a></li>
+                <li class="page-item">...</li>
+                <li class="page-item"><a class="page-link"
+                        href="{{ url_for('teamshalf.teamshalf_info', query=query, page=page_info['pages']) }}">{{
+                        page_info['pages'] }}</a></li>
+                <li class="page-item">
+                    <a class="page-link"
+                        href="{{ url_for('teamshalf.teamshalf_info', query=query, page=page_info['page']+1) }}"
+                        aria-label="Next">
+                        <span class="sr-only">Next</span>
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+        </ul>
+    </div>
+</article>
+{% endblock content %}

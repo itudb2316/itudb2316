@@ -15,3 +15,8 @@ Week 3 (20-26 Nov):
 	
     - Created a folder called "teamshalf" for the table that I am responsible for
     - Under this folder necessary html files are added and search functionality is implemented. Further corrections will be made..
+
+Week 4 (27 Nov - 03 Dec):
+
+    - The search, update, delete and insert functionalities are added to the teamshalf page
+    - The teamshalf table is decomposed into two tables to fit in the Boyce Codd Normal Form in my local database

@@ -1,19 +1,29 @@
 {% extends "layout.html" %}
 {% block content %}
-
-<h1>Teams-Half Page</h1>
+<h1>Teams' Half Season Info {{ purpose|capitalize }} Page</h1>
 <div class="content-section">
-    <h3>Half Season Team Stats Search</h3>
-
-    <form action="/teamshalf/team_stats" method="post">
-        <label for="team_name">Select a Team:</label>
-        <select class="form-select" name="team_name" id="team_name">
-            {% for team in teams %}
-                <option value="{{ team }}">{{ team }}</option>
-            {% endfor %}
-        </select>
-        <button type="submit" class="btn btn-primary mt-2">Get Stats</button>
+    <form method="POST" action="" novalidate>
+        {{ form.hidden_tag() }}
+        {% for k, _ in form.__dict__['_fields'].items() %}
+        {% if k != 'submit' and k != 'csrf_token' %}
+        <div class="form-group mt-3">
+            {{ form.__dict__['_fields'][k].label(class="form-control-label") }}
+            {% if form.__dict__['_fields'][k].errors %}
+            {{ form.__dict__['_fields'][k](class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+                {% for error in form.__dict__['_fields'][k].errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+            {{ form.__dict__['_fields'][k](class="form-control form-control-lg") }}
+            {% endif %}
+        </div>
+        {% endif %}
+        {% endfor %}
+        <div class="form-group mt-3 mb-3">
+            {{ form.submit() }}
+        </div>
     </form>
 </div>
-
 {% endblock content %}

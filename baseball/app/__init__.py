@@ -6,6 +6,7 @@ from .tools import RowListConverter
 from app.fielding.models import Fielding
 from app.players.models import Players
 from app.batting.models import Batting
+from app.teamshalf.models import Teamshalf
     
 def create_app():
     app = Flask(__name__)
@@ -19,16 +20,19 @@ def create_app():
     app.config['FIELDING'] = Fielding()
     app.config['PLAYERS'] = Players()
     app.config['BATTING'] = Batting()
+    app.config['TEAMSHALF'] = Teamshalf()
 
     # Register blueprints
     from app.home import home_blueprint
     from app.fielding import fielding_blueprint
     from app.players import players_blueprint
     from app.batting import batting_blueprint
+    from app.teamshalf import teamshalf_blueprint
 
     app.register_blueprint(home_blueprint)
     app.register_blueprint(fielding_blueprint)
     app.register_blueprint(players_blueprint)
     app.register_blueprint(batting_blueprint)
+    app.register_blueprint(teamshalf_blueprint)
 
     return app
