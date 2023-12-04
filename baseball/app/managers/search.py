@@ -29,8 +29,6 @@ class ManagersSearchForm(FlaskForm):
     height = IntegerField('Height', default=-1, render_kw={'placeholder': 'Enter the player\'s height'})
     bats = StringField('Bats', [Length(max=100)], default="", render_kw={'placeholder': 'Enter the player\'s bats'})
     throws = StringField('Throws', [Length(max=100)], default="", render_kw={'placeholder': 'Enter the player\'s throws'})
-    #debut = StringField('Debut', [Length(max=100)], default="", render_kw={'placeholder': 'Enter the player\'s debut'})
-    #finalGame = StringField('Final Game', [Length(max=100)], default="", render_kw={'placeholder': 'Enter the player\'s final game'})
     college = StringField('College', [Length(max=100)], default="", render_kw={'placeholder': 'Enter the player\'s college'})
     lahman40ID = StringField('Lahman 40 ID', [Length(max=100)], default="", render_kw={'placeholder': 'Enter the player\'s Lahman 40 ID'})
     lahman45ID = StringField('Lahman 45 ID', [Length(max=100)], default="", render_kw={'placeholder': 'Enter the player\'s Lahman 45 ID'})

@@ -9,28 +9,33 @@ class Managers:
     def __init__(self):
         self.app = app
 
-    def view_managers(self, row): 
+    def view_managers(self, row, sort_by=None, order=None, exclude_null=True): 
         try:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
             data = list2dict(row, self.HEADER)
             select_query = 'SELECT '
-            for col in self.HEADER:
-                select_query += col + ', '
-            select_query = select_query.removesuffix(', ')
+            select_query += ", ".join(self.HEADER)
             select_query += ' FROM managers WHERE '
+            
+            conditions = []
             for i in range(len(self.HEADER)):
                 if data[self.HEADER[i]] == 'None':
                     continue
                 if self.COL_TYPES[i] == 'int':
-                    condition = self.HEADER[i] + ' = ' + data[self.HEADER[i]] + ' AND '
+                    conditions.append(self.HEADER[i] + ' = ' + data[self.HEADER[i]])
                 elif self.COL_TYPES[i] == 'str':
-                    condition = self.HEADER[i] + ' = \'' + data[self.HEADER[i]] + '\' AND '
-                select_query += condition
-            if select_query[-6:-1] == 'WHERE':
-                select_query = select_query.removesuffix(' WHERE ')
-            else:
-                select_query = select_query.removesuffix(' AND ')
+                    conditions.append(self.HEADER[i] + ' = \'' + data[self.HEADER[i]] + '\'')
+            select_query += " AND ".join(conditions)
+            if len(conditions) == 0:
+                select_query = select_query.removesuffix('WHERE ')
+
+            if sort_by != None:
+                select_query += ' ORDER BY '
+                if exclude_null:
+                    select_query += 'CASE WHEN ' + sort_by + ' IS NULL THEN 1 ELSE 0 END, '
+                select_query += sort_by + ' ' + order
+
             print()
             print(select_query)
             cursor.execute(select_query)
@@ -39,6 +44,7 @@ class Managers:
             
         except dbapi.Error as err:
             db.rollback()
+            results = []
         finally:
             cursor.close()
             db.close()

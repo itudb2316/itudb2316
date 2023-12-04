@@ -8,8 +8,14 @@ Week 2 (13-19 Nov): Homepage and category (main table) pages are implemented.
   - Up until from this week, each team member will contine to progress on his own part of the project, which includes the category (own main table) subpages.
 
 Week 3 (20-26 Nov):
-    - Created managers page. 
-    - Searching managers will be live after embedding into homepage.
-    - HTML templates, manager model/view are created.
-    - Implemented insert, edit, delete functions without testing.
-    - Further modifications according to columns of 'managers' table will be applied in later weeks.
+  - Created managers page. 
+  - Searching managers will be live after embedding into homepage.
+  - HTML templates, manager model/view are created.
+  - Implemented insert, edit, delete functions without testing.
+  - Further modifications according to columns of 'managers' table will be applied in later weeks.
+
+Week 4 (27 Nov - 03 Dec):
+  - Sorting by column functionality is added.
+  - managers_detail query is adjusted to contain only the primary key.
+  - Detected bugs are fixed.
+  - Embeddinng into home page will be implemented in later weeks. 
