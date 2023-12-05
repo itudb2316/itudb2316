@@ -72,11 +72,14 @@ class Fielding:
             print(update_query)
             cursor.execute(update_query)
             db.commit()
-        except dbapi.Error as err:
-            db.rollback()
-        finally:
             cursor.close()
             db.close()
+            return 0
+        except dbapi.Error as err:
+            db.rollback()
+            cursor.close()
+            db.close()
+            return -1
 
     def delete_fielding(self, row):
         try:

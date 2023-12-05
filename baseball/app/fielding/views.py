@@ -70,9 +70,12 @@ def fielding_update_search(transmit):
 @app.route('/fielding/<row_list:query_list>/update/<row_list:transmit>/')
 def fielding_update(query_list, transmit):
     fielding = current_app.config['FIELDING']
-    fielding.update_fielding(transmit, query_list)
-    flash(f'Successfully updated!', 'success')
-    return render_template('home.html')
+    ret = fielding.update_fielding(transmit, query_list)
+    if ret == 0:
+        flash(f'Successfully updated!', 'success')
+        return render_template('home.html')
+    else:
+        return redirect(url_for('home.error', message="Update error!"))
 
 @app.route('/fielding/<row_list:query_list>/delete')
 @app.route('/fielding/<row_list:query_list>/delete/')
