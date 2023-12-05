@@ -11,4 +11,9 @@ Week 3 (20- 26 November):
     - Created HTML templates, player model & view for players page.
     - Implemented search & delete.
     - Template code for insert & update.
-    
+
+Week 4 (27 Nov - 03 Dec):
+    - Sorting by column is implemented.
+    - Did research for user-friendly URLs & implemented for search. Other functionalities will be updated accordingly.
+    - Minor bug fixes. (Related to searching values with ',' or '/')
+    - Changed the way database credentials are gathered. Now developer has to put informations in environment variables via .env file in root directory. (Prevents leaking sensitive information)
