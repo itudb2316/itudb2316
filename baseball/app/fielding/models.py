@@ -11,16 +11,15 @@ class Fielding:
     def __init__(self):
         self.app = app
 
-    def view_fielding(self, row): 
+    def view_fielding(self, row, sort_by=None, order=None, exclude_null=True): 
         try:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
             data = list2dict(row, self.HEADER)
             select_query = 'SELECT '
-            for col in self.HEADER:
-                select_query += col + ', '
-            select_query = select_query.removesuffix(', ')
+            select_query += ", ".join(self.HEADER)
             select_query += ' FROM fielding WHERE '
+
             for i in range(len(self.HEADER)):
                 if data[self.HEADER[i]] == 'None':
                     continue
@@ -33,6 +32,13 @@ class Fielding:
                 select_query = select_query.removesuffix(' WHERE ')
             else:
                 select_query = select_query.removesuffix(' AND ')
+
+            if sort_by != None:
+                select_query += ' ORDER BY '
+                if exclude_null:
+                    select_query += 'CASE WHEN ' + sort_by + ' IS NULL THEN 1 ELSE 0 END, '
+                select_query += sort_by + ' ' + order
+
             print()
             print(select_query)
             cursor.execute(select_query)
@@ -41,6 +47,8 @@ class Fielding:
             return results
         except dbapi.Error as err:
             db.rollback()
+            results = []
+            return results
         finally:
             cursor.close()
             db.close()

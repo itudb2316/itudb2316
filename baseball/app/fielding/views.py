@@ -29,8 +29,12 @@ def fielding_search():
 @app.route('/fielding/<row_list:query>')
 @app.route('/fielding/<row_list:query>/')
 def fielding_info(query):
+    sort_by = request.args.get('sort_by', None, type=str)
+    order = request.args.get('order', None, type=str)
+
     fielding = current_app.config['FIELDING']
-    results = fielding.view_fielding(query)
+    results = fielding.view_fielding(query, sort_by, order)
+
     page = request.args.get('page', 1, type=int)
     per_page = current_app.config['PER_PAGE']
     pages = len(results) // per_page + 1
@@ -40,7 +44,9 @@ def fielding_info(query):
     if len(results) == 0:
         flash(f'No results were found! Try again.', 'danger')
         return redirect(url_for('fielding.fielding_search'))
-    return render_template('fielding_info.html', query=query, results=paginated_data, header=current_app.config['FIELDING'].HEADER, page_info=page_info)
+    return render_template('fielding_info.html', query=query, results=paginated_data, 
+                            header=current_app.config['FIELDING'].HEADER, 
+                            page_info=page_info, sort_by=sort_by, order=order)
 
 @app.route('/fielding/<row_list:query_list>/detail')
 @app.route('/fielding/<row_list:query_list>/detail/')
