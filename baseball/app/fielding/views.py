@@ -70,8 +70,8 @@ def fielding_update_search(transmit):
 @app.route('/fielding/<row_list:query_list>/update/<row_list:transmit>/')
 def fielding_update(query_list, transmit):
     fielding = current_app.config['FIELDING']
-    ret = fielding.update_fielding(transmit, query_list)
-    if ret == 0:
+    db_response = fielding.update_fielding(transmit, query_list)
+    if db_response == True:
         flash(f'Successfully updated!', 'success')
         return render_template('home.html')
     else:
@@ -81,9 +81,13 @@ def fielding_update(query_list, transmit):
 @app.route('/fielding/<row_list:query_list>/delete/')
 def fielding_delete(query_list):
     fielding = current_app.config['FIELDING']
-    fielding.delete_fielding(query_list)
-    flash(f'Successfully deleted!', 'warning')
-    return render_template('home.html')
+    db_response = fielding.delete_fielding(query_list)
+
+    if db_response == True:
+        flash(f'Successfully deleted!', 'warning')
+        return render_template('home.html')
+    else:
+        return redirect(url_for('home.error', message="Deletion error!"))
 
 @app.route('/fielding/insert', methods=["GET", "POST"])
 @app.route('/fielding/insert/', methods=["GET", "POST"])
@@ -98,10 +102,10 @@ def fielding_insert_search():
 @app.route('/fielding/<row_list:query_list>/insert/')
 def fielding_insert(query_list):
     fielding = current_app.config['FIELDING']
-    fielding.insert_fielding(query_list)
-    results = fielding.view_fielding(query_list)
+    db_response = fielding.insert_fielding(query_list)
 
-    if len(results) == 0:
-        flash(f'No results were found! Try again.', 'danger')
-        return redirect(url_for('fielding.fielding_insert_search'))
-    return render_template('fielding_detail.html', result=results[0], header=current_app.config['FIELDING'].HEADER)
+    if db_response == True:
+        flash(f'Successfully inserted!', 'success')
+        return render_template('home.html')
+    else:
+        return redirect(url_for('home.error', message="Insertion error!"))

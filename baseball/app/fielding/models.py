@@ -74,12 +74,12 @@ class Fielding:
             db.commit()
             cursor.close()
             db.close()
-            return 0
+            return True
         except dbapi.Error as err:
             db.rollback()
             cursor.close()
             db.close()
-            return -1
+            return False
 
     def delete_fielding(self, row):
         try:
@@ -100,11 +100,14 @@ class Fielding:
             print(delete_query)
             cursor.execute(delete_query)
             db.commit()
-        except dbapi.Error as err:
-            db.rollback()
-        finally:
             cursor.close()
             db.close()
+            return True
+        except dbapi.Error as err:
+            db.rollback()
+            cursor.close()
+            db.close()
+            return False
 
     def insert_fielding(self, row):
         try:
@@ -129,11 +132,14 @@ class Fielding:
             print(insert_query)
             cursor.execute(insert_query)
             db.commit()
-        except dbapi.Error as err:
-            db.rollback()
-        finally:
             cursor.close()
             db.close()
+            return True
+        except dbapi.Error as err:
+            db.rollback()
+            cursor.close()
+            db.close()
+            return False
 
 """
 class Demo:
