@@ -24,9 +24,9 @@
                         <th scope="col">
 
                             {% if sorted_column == col %}
-                                <a href="{{ url_for('players.players_info', query=query, sort_by=col, order=switch_order) }}">{{ col }}</a>
+                                <a href="{{ url_for('players.players_info') }}?{% for key, value in query.items() %}&{{ key }}={{ value }}{% endfor %}&sort_by={{ col }}&order={{ switch_order }}">{{ col }}</a>
                             {% else %}
-                                <a href="{{ url_for('players.players_info', query=query, sort_by=col, order='asc') }}">{{ col }}</a>
+                                <a href="{{ url_for('players.players_info') }}?{% for key, value in query.items() %}&{{ key }}={{ value }}{% endfor %}&sort_by={{ col }}&order=asc">{{ col }}</a>
                             {% endif %}
                         </th>
                         {% endfor %}
@@ -36,16 +36,8 @@
                     {% for result in results %}
                     <tr>
                         <th scope="row">
-                            <!-- copy every entry into a detail_query and make all of them null except first one-->
-
-                            {% set detail_query = [] %}
-                            {% set _ = detail_query.append(result[0]) %}
-                            {% for i in result[1:] %}
-                                {% set _ = detail_query.append('None') %}
-                            {% endfor %}
-
                             <a class="badge badge-primary"
-                                href="{{ url_for('players.players_detail', query_list=detail_query, sort_by=sorted_column, order=order) }}">
+                                href="{{ url_for('players.players_detail') }}?lahmanID={{result[0]}}">
                                 {{ loop.index + (page_info['page'] - 1) * page_info['per_page'] }}
                             </a>
                         </th>

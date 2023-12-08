@@ -6,7 +6,7 @@
 
         <ul class="article-content list-group">
             <div class="btn-group" role="group" aria-label="Basic example">
-                <a href="{{ url_for('players.players_update_search', transmit=result) }}"
+                <a href="{{ url_for('players.players_update_search')}}?key={{result[0]}}"
                     class="btn btn-secondary">Update</a>
                 <a href="{{ url_for('players.players_delete', query_list=result) }}"
                     class="btn btn-secondary">Delete</a>

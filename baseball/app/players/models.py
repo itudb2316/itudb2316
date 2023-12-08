@@ -3,36 +3,61 @@ from flask import current_app as app
 from app.tools import list2dict
 
 class Players:
-    HEADER = ['lahmanID', 'playerId', 'managerID', 'hofID', 'birthYear', 'birthMonth',
-              'birthDay', 'birthCountry', 'birthState', 'birthCity', 'deathYear', 'deathMonth',
-              'deathDay', 'deathCountry', 'deathState', 'deathCity', 'nameFirst', 'nameLast',
-              'nameNote', 'nameGiven', 'nameNick', 'weight', 'height', 'bats', 'throws',
-              'debut', 'finalGame', 'college', 'lahman40ID', 'lahman45ID', 'retroID', 'holtzID',
-              'bbrefID']
-    COL_TYPES = ['int', 'str', 'str', 'str', 'int', 'int', 'int', 'str', 'str', 'str', 'int', 'int',
-                 'int', 'str', 'str', 'str', 'str', 'str', 'str', 'str', 'str', 'int', 'int', 'str',
-                 'str','str', 'str', 'str', 'str', 'str', 'str', 'str', 'str']
     
+    COLUMNS = {
+    'lahmanID': 'int',
+    'playerID': 'str',
+    'managerID': 'str',
+    'hofID': 'str',
+    'birthYear': 'int',
+    'birthMonth': 'int',
+    'birthDay': 'int',
+    'birthCountry': 'str',
+    'birthState': 'str',
+    'birthCity': 'str',
+    'deathYear': 'int',
+    'deathMonth': 'int',
+    'deathDay': 'int',
+    'deathCountry': 'str',
+    'deathState': 'str',
+    'deathCity': 'str',
+    'nameFirst': 'str',
+    'nameLast': 'str',
+    'nameNote': 'str',
+    'nameGiven': 'str',
+    'nameNick': 'str',
+    'weight': 'int',
+    'height': 'int',
+    'bats': 'str',
+    'throws': 'str',
+    'debut': 'str',
+    'finalGame': 'str',
+    'college': 'str',
+    'lahman40ID': 'str',
+    'lahman45ID': 'str',
+    'retroID': 'str',
+    'holtzID': 'str',
+    'bbrefID': 'str'
+}
     def __init__(self):
         self.app = app
 
-    def view_players(self, row, sort_by=None, order=None, exclude_null=True): 
+    def view_players(self, queries, sort_by=None, order=None, exclude_null=True): 
         try:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
-            data = list2dict(row, self.HEADER)
             select_query = 'SELECT '
-            select_query += ", ".join(self.HEADER)
+            select_query += ", ".join(self.COLUMNS.keys())
             select_query += ' FROM players WHERE '
             
             conditions = []
-            for i in range(len(self.HEADER)):
-                if data[self.HEADER[i]] == 'None':
+            for k,v in queries.items():
+                if v == 'None' or v == None:
                     continue
-                if self.COL_TYPES[i] == 'int':
-                    conditions.append(self.HEADER[i] + ' = ' + data[self.HEADER[i]])
-                elif self.COL_TYPES[i] == 'str':
-                    conditions.append(self.HEADER[i] + ' = \'' + data[self.HEADER[i]] + '\'')
+                if self.COLUMNS[k] == 'int':
+                    conditions.append(k + ' = ' + v)
+                elif self.COLUMNS[k] == 'str':
+                    conditions.append(k + ' = \'' + v + '\'')
             select_query += " AND ".join(conditions)
             if len(conditions) == 0:
                 select_query = select_query.removesuffix('WHERE ')
@@ -41,6 +66,7 @@ class Players:
                 select_query += ' ORDER BY '
                 if exclude_null:
                     select_query += 'CASE WHEN ' + sort_by + ' IS NULL THEN 1 ELSE 0 END, '
+                
                 select_query += sort_by + ' ' + order
 
             print()
@@ -57,38 +83,38 @@ class Players:
             db.close()
         return results
     
-    def update_players(self, transmit, row):
+    def update_players(self, key, new_data):
         try:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
-            data = list2dict(row, self.HEADER)
             update_query = 'UPDATE players SET '
-            for i in range(len(self.HEADER)):
-                if data[self.HEADER[i]] == 'None':
-                    update_query += self.HEADER[i] + ' = NULL AND '
-                elif self.COL_TYPES[i] == 'int':
-                    update_query += self.HEADER[i] + ' = ' + data[self.HEADER[i]] + ' , '
-                elif self.COL_TYPES[i] == 'str':
-                    update_query += self.HEADER[i] + ' = \'' + data[self.HEADER[i]] + '\' , '
-            update_query = update_query.removesuffix(' , ')
-            update_query += ' WHERE '
-            for i in range(len(self.HEADER)):
-                if transmit[i] == 'None':
-                    update_query += self.HEADER[i] + ' IS NULL AND '
-                elif self.COL_TYPES[i] == 'int':
-                    update_query += self.HEADER[i] + ' = ' + transmit[i] + ' AND '
-                elif self.COL_TYPES[i] == 'str':
-                    update_query += self.HEADER[i] + ' = \'' + transmit[i] + '\' AND '
-            update_query = update_query.removesuffix(' AND ')
+            
+            new_values = []
+            for k,v in new_data.items():
+                if v == 'None' or v == None:
+                    new_values.append(k + ' = NULL')
+                elif self.COLUMNS[k] == 'int':
+                    new_values.append(k + ' = ' + v)
+                elif self.COLUMNS[k] == 'str':
+                    new_values.append(k + ' = \'' + v + '\'')
+            update_query += ", ".join(new_values)
+            update_query += ' WHERE lahmanID = ' + key
+
+
             print()
             print(update_query)
             cursor.execute(update_query)
+            results = cursor.fetchall()
             db.commit()
+            
         except dbapi.Error as err:
             db.rollback()
+            results = []
         finally:
             cursor.close()
             db.close()
+        return results
+        
 
     def delete_players(self, row):
         try:
