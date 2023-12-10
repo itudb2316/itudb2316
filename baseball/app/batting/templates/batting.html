@@ -11,7 +11,7 @@
             {% if form.__dict__['_fields'][k].errors %}
             {{form.__dict__['_fields'][k](class="form-control form-control-lg is-invalid")}}
             <div class="invalid-feedback">
-                {% for error in form.__dict__['fields'][k].errors %}
+                {% for error in form.__dict__['_fields'][k].errors %}
                 <span>{{error}}</span>
                 {% endfor %}
             </div>

@@ -20,3 +20,10 @@ Week 4 (28 November - 3 December)
 - Searching function has been fixed.
 - Delete and update functions have been successfully added to the detail page for batting.
 - Insert function has been added albeit with an error that is to be fixed in a later date.
+
+Week 5 (4 - 11 December)
+
+-The URL's for batting and batting_info have been simplified.
+-Searching page's forms shows what to enter rather than the number -1.
+-Changing the URL for batting_detail have been tried in both HTML and Python files to no success as for now, to be fixed in a later date.
+-batting_info's columns can now be ordered by ascending or descending order.
