@@ -20,3 +20,8 @@ Week 4 (27 Nov - 03 Dec):
 
     - The search, update, delete and insert functionalities are added to the teamshalf page
     - The teamshalf table is decomposed into two tables to fit in the Boyce Codd Normal Form in my local database
+
+Week 5 (4 Dec - 10 Dec):
+
+    - The search, update, delete and insert functionalities of the teamshalf page are tested and fixed
+    - All CRUD operations on the teamshalf table are now functional

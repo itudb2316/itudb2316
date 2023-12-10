@@ -11,12 +11,52 @@
                 <a href="{{ url_for('teamshalf.teams_delete', query_list=result) }}"
                     class="btn btn-secondary">Delete</a>
             </div>
-            {% for col in result %}
+            
             <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span>{{ header[loop.index - 1]|capitalize }}</span>
-                <span class="badge badge-primary badge-pill">{{ col }}</span>
+                <span>Team Name</span>
+                <span class="badge badge-primary badge-pill">{{ result[0] }}</span>
             </li>
-            {% endfor %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>Year</span>
+                <span class="badge badge-primary badge-pill">{{ result[1] }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>Team ID</span>
+                <span class="badge badge-primary badge-pill">{{ result[2] }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>League ID</span>
+                <span class="badge badge-primary badge-pill">{{ result[3] }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>Division ID</span>
+                <span class="badge badge-primary badge-pill">{{ result[4] }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>Half</span>
+                <span class="badge badge-primary badge-pill">{{ result[5] }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>Division Win</span>
+                <span class="badge badge-primary badge-pill">{{ result[6] }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>Ranking</span>
+                <span class="badge badge-primary badge-pill">{{ result[7] }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>Games Played</span>
+                <span class="badge badge-primary badge-pill">{{ result[8] }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>Wins</span>
+                <span class="badge badge-primary badge-pill">{{ result[9] }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>Losses</span>
+                <span class="badge badge-primary badge-pill">{{ result[10] }}</span>
+            </li>
+
         </ul>
     </div>
 </article>

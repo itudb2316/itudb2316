@@ -1,12 +1,12 @@
 from flask import current_app, render_template, request, redirect, url_for, flash
 from . import teamshalf_blueprint as app
-from .search import TeamshalfSearchForm
+from .search import TeamshalfSearchForm, TeamshalfUpdateForm, TeamshalfInsertionForm
 from app.tools import paginate
 
-def query_fill(form, table):
+def query_fill(form, list):
     query = []
     for i, (k, _) in enumerate(form.__dict__['_fields'].items()):
-        if i < len(table.HEADER):
+        if i < len(list):
             query.append(form.__dict__['_fields'][k].data)
     for i in range(len(query)):
         if type(query[i]) == str:
@@ -22,7 +22,7 @@ def query_fill(form, table):
 def teams_search():
     form = TeamshalfSearchForm()
     if request.method == 'POST' and form.validate_on_submit():
-        query = query_fill(form, current_app.config['TEAMSHALF'])
+        query = query_fill(form, current_app.config['TEAMSHALF'].joined_search_headers)
         return redirect(url_for('teamshalf.teamshalf_info', query=query))
     return render_template('teamshalf.html', form=form, purpose='Search')
 
@@ -40,7 +40,7 @@ def teamshalf_info(query):
     if len(results) == 0:
         flash(f'No results were found! Try again.', 'danger')
         return redirect(url_for('teamshalf.teams_search'))
-    return render_template('teamshalf_info.html', query=query, results=paginated_data, header=current_app.config['TEAMSHALF'].HEADER, page_info=page_info)
+    return render_template('teamshalf_info.html', query=query, results=paginated_data, header=current_app.config['TEAMSHALF'].joined_search_headers, page_info=page_info)
 
 @app.route('/teamshalf/<row_list:query_list>/detail')
 @app.route('/teamshalf/<row_list:query_list>/detail/')
@@ -52,18 +52,21 @@ def teamshalf_detail(query_list):
         flash(f'No results were found! Try again.', 'danger')
         return redirect(url_for('teamshalf.teams_search'))
 
-    return render_template('teamshalf.html', result=results[0], header=current_app.config['TEAMSHALF'].HEADER)
+    return render_template('teamshalf_detail.html', result=results[0], header=current_app.config['TEAMSHALF'].joined_search_headers)
 
 @app.route('/teamshalf/update/<row_list:transmit>', methods=["GET", "POST"])
 @app.route('/teamshalf/update/<row_list:transmit>/', methods=["GET", "POST"])
 def teams_update_search(transmit):
-    form = TeamshalfSearchForm()
+    form = TeamshalfUpdateForm()
+    indices_to_delete = [0, 3, 4]
+    transmit[:] = [value for index, value in enumerate(transmit) if index not in indices_to_delete]
+
     if request.method == 'GET':
         for i, (k, _) in enumerate(form.__dict__['_fields'].items()):
             if i < len(current_app.config['TEAMSHALF'].HEADER):
                 form.__dict__['_fields'][k].data = transmit[i]
     if request.method == 'POST' and form.validate_on_submit():
-        query = query_fill(form, current_app.config['TEAMSHALF'])
+        query = query_fill(form, current_app.config['TEAMSHALF'].HEADER)
         return redirect(url_for('teamshalf.teams_update', query_list=query, transmit=transmit))
     return render_template('teamshalf.html', form=form, purpose='Update')
 
@@ -86,9 +89,9 @@ def teams_delete(query_list):
 @app.route('/teamshalf/insert', methods=["GET", "POST"])
 @app.route('/teamshalf/insert/', methods=["GET", "POST"])
 def teams_insert_search():
-    form = TeamshalfSearchForm()
+    form = TeamshalfInsertionForm()
     if request.method == 'POST' and form.validate_on_submit():
-        query = query_fill(form, current_app.config['TEAMSHALF'])
+        query = query_fill(form, current_app.config['TEAMSHALF'].joined_search_headers)
         return redirect(url_for('teamshalf.teams_insert', query_list=query))
     return render_template('teamshalf.html', form=form, purpose='Insertion')
 
@@ -102,4 +105,4 @@ def teams_insert(query_list):
     if len(results) == 0:
         flash(f'No results were found! Try again.', 'danger')
         return redirect(url_for('teamshalf.teams_insert_search'))
-    return render_template('teamshalf_detail.html', result=results[0], header=current_app.config['TEAMSHALF'].HEADER)
+    return render_template('teamshalf_detail.html', result=results[0], header=current_app.config['TEAMSHALF'].joined_search_headers)
