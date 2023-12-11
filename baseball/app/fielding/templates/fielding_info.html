@@ -22,9 +22,9 @@
                         {% for col in header %}
                         <th scope="col">
                             {% if sorted_column == col %}
-                                <a href="{{ url_for('fielding.fielding_info', query=query, sort_by=col, order=switch_order) }}">{{ col }}</a>
+                                <a href="{{ url_for('fielding.fielding_info', sort_by=col, order=switch_order, **query) }}">{{ col }}</a>
                             {% else %}
-                                <a href="{{ url_for('fielding.fielding_info', query=query, sort_by=col, order='asc') }}">{{ col }}</a>
+                                <a href="{{ url_for('fielding.fielding_info', sort_by=col, order='asc', **query) }}">{{ col }}</a>
                             {% endif %}
                         </th>
                         {% endfor %}
@@ -42,7 +42,7 @@
                                 {% set _ = detail_query.append('None') %}
                             {% endfor %}
                             <a class="badge badge-primary"
-                                href="{{ url_for('fielding.fielding_detail', query_list=result) }}">
+                                href="{{ url_for('fielding.fielding_detail', playerID=result[0], yearID=result[1], stint=result[2], teamID=result[3], lgID=result[4], pos=result[5]) }}">
                                 {{ loop.index + (page_info['page'] - 1) * page_info['per_page'] }}
                             </a>
                         </th>
@@ -54,36 +54,37 @@
                 </tbody>
             </table>
         </div>
+        {% if page_info['pages'] > 1 %}
         <ul class="pagination justify-content-center">
             {% if page_info['page'] > 1 %}
             <li class="page-item">
                 <a class="page-link"
-                    href="{{ url_for('fielding.fielding_info', query=query, sort_by=sorted_column, order=order, page=page_info['page']-1) }}"
+                    href="{{ url_for('fielding.fielding_info', sort_by=sorted_column, order=order, page=page_info['page']-1, **query) }}"
                     aria-label="Previous">
                     <span aria-hidden="true">&laquo;</span>
                     <span class="sr-only">Previous</span>
                 </a>
             </li>
             <li class="page-item"><a class="page-link"
-                    href="{{ url_for('fielding.fielding_info', sort_by=sorted_column, order=order, query=query, page=1) }}">1</a>
+                    href="{{ url_for('fielding.fielding_info', sort_by=sorted_column, order=order, page=1, **query) }}">1</a>
             </li>
             <li class="page-item">...</li>
             <li class="page-item"><a class="page-link"
-                    href="{{ url_for('fielding.fielding_info', sort_by=sorted_column, order=order, query=query, page=page_info['page']-1) }}">{{
+                    href="{{ url_for('fielding.fielding_info', sort_by=sorted_column, order=order, page=page_info['page']-1, **query) }}">{{
                     page_info['page'] -1
                     }}</a></li>
             {% endif %}
             <li class="page-item"><a class="page-link" href="#">{{ page_info['page'] }}</a></li>
             {% if page_info['page'] < page_info['pages'] %} <li class="page-item"><a class="page-link"
-                    href="{{ url_for('fielding.fielding_info', query=query, sort_by=sorted_column, order=order, page=page_info['page']+1) }}">{{
+                    href="{{ url_for('fielding.fielding_info', sort_by=sorted_column, order=order, page=page_info['page']+1, **query) }}">{{
                     page_info['page'] + 1 }}</a></li>
                 <li class="page-item">...</li>
                 <li class="page-item"><a class="page-link"
-                        href="{{ url_for('fielding.fielding_info', query=query, sort_by=sorted_column, order=order, page=page_info['pages']) }}">{{
+                        href="{{ url_for('fielding.fielding_info', sort_by=sorted_column, order=order, page=page_info['pages'], **query) }}">{{
                         page_info['pages'] }}</a></li>
                 <li class="page-item">
                     <a class="page-link"
-                        href="{{ url_for('fielding.fielding_info', query=query, sort_by=sorted_column, order=order, page=page_info['page']+1) }}"
+                        href="{{ url_for('fielding.fielding_info', sort_by=sorted_column, order=order, page=page_info['page']+1, **query) }}"
                         aria-label="Next">
                         <span class="sr-only">Next</span>
                         <span aria-hidden="true">&raquo;</span>
@@ -91,6 +92,7 @@
                 </li>
                 {% endif %}
         </ul>
+        {% endif %}
     </div>
 </article>
 {% endblock content %}

@@ -3,6 +3,16 @@ from . import fielding_blueprint as app
 from .search import FieldingSearchForm
 from app.tools import paginate
 
+def getURLQuery(query):
+    url_query = {}
+    for k, v in query.items():
+        if k in current_app.config['FIELDING'].COLUMNS.keys():
+            if v == 'None' or v == None or v == '':
+                continue
+            
+            url_query[k] = v
+    return url_query
+
 def query_fill(form, table):
     query = []
     for i, (k, _) in enumerate(form.__dict__['_fields'].items()):
@@ -17,22 +27,28 @@ def query_fill(form, table):
                 query[i] = 'None'
     return query
 
-@app.route('/fielding', methods=["GET", "POST"])
-@app.route('/fielding/', methods=["GET", "POST"])
+@app.route('/fielding/search', methods=["GET", "POST"])
 def fielding_search():
     form = FieldingSearchForm()
     if request.method == 'POST' and form.validate_on_submit():
-        query = query_fill(form, current_app.config['FIELDING'])
-        return redirect(url_for('fielding.fielding_info', query=query))
+        #read form data into query_params
+        query_params = request.form.to_dict()
+
+        print(query_params)
+        #remove empty fields and non-column fields and None values
+        query_params = getURLQuery(query_params)
+        print(query_params)
+        return redirect(url_for('fielding.fielding_info', **query_params))
     return render_template('fielding.html', form=form, purpose='Search')
 
-@app.route('/fielding/<row_list:query>')
-@app.route('/fielding/<row_list:query>/')
-def fielding_info(query):
+@app.route('/fielding/results', methods=["GET", "POST"])
+def fielding_info():
+    query = request.args.to_dict()
     sort_by = request.args.get('sort_by', None, type=str)
     order = request.args.get('order', None, type=str)
 
     fielding = current_app.config['FIELDING']
+    query = getURLQuery(query)  # Filter query dictionary to include only column names
     results = fielding.view_fielding(query, sort_by, order)
 
     page = request.args.get('page', 1, type=int)
@@ -45,19 +61,19 @@ def fielding_info(query):
         flash(f'No results were found! Try again.', 'danger')
         return redirect(url_for('fielding.fielding_search'))
     return render_template('fielding_info.html', query=query, results=paginated_data, 
-                            header=current_app.config['FIELDING'].HEADER, 
+                            header=current_app.config['FIELDING'].COLUMNS.keys(), 
                             page_info=page_info, sort_by=sort_by, order=order)
 
-@app.route('/fielding/<row_list:query_list>/detail')
-@app.route('/fielding/<row_list:query_list>/detail/')
-def fielding_detail(query_list):
+@app.route('/fielding/detail')
+def fielding_detail():
     fielding = current_app.config['FIELDING']
-    results = fielding.view_fielding(query_list)
+    query = request.args.to_dict()
+    results = fielding.view_fielding(query)
 
     if len(results) == 0:
         flash(f'No results were found! Try again.', 'danger')
         return redirect(url_for('fielding.fielding_search'))
-    return render_template('fielding_detail.html', result=results[0], header=current_app.config['FIELDING'].HEADER)
+    return render_template('fielding_detail.html', result=results[0], header=list(current_app.config['FIELDING'].COLUMNS.keys()))
 
 @app.route('/fielding/update/<row_list:transmit>', methods=["GET", "POST"])
 @app.route('/fielding/update/<row_list:transmit>/', methods=["GET", "POST"])

@@ -1,37 +1,50 @@
 import mysql.connector as dbapi
 from flask import current_app as app
-from app.tools import list2dict
+from app.tools import list2dict 
 
 class Fielding:
     HEADER = ['playerID', 'yearID', 'stint', 'teamID', 'lgID', 'pos', 
               'g', 'gs', 'innOuts', 'po', 'a', 'e', 'dp']
     COL_TYPES = ['str', 'int', 'int', 'str', 'str', 'str', 'int', 
                  'int', 'int', 'int', 'int', 'int', 'int']
+    COLUMNS = {
+        'playerID' : 'str',
+        'yearID' : 'int',
+        'stint' : 'int',
+        'teamID' : 'str',
+        'lgID' : 'str',
+        'pos' : 'str',
+        'g' : 'int',
+        'gs' : 'int',
+        'innOuts' : 'int',
+        'po' : 'int',
+        'a' : 'int',
+        'e' : 'int',
+        'dp' : 'int',
+    }
     
     def __init__(self):
         self.app = app
 
-    def view_fielding(self, row, sort_by=None, order=None, exclude_null=True): 
+    def view_fielding(self, queries, sort_by=None, order=None, exclude_null=True): 
         try:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
-            data = list2dict(row, self.HEADER)
             select_query = 'SELECT '
-            select_query += ", ".join(self.HEADER)
+            select_query += ", ".join(self.COLUMNS.keys())
             select_query += ' FROM fielding WHERE '
 
-            for i in range(len(self.HEADER)):
-                if data[self.HEADER[i]] == 'None':
+            conditions = []
+            for k,v in queries.items():
+                if v == 'None' or v == None:
                     continue
-                if self.COL_TYPES[i] == 'int':
-                    condition = self.HEADER[i] + ' = ' + data[self.HEADER[i]] + ' AND '
-                elif self.COL_TYPES[i] == 'str':
-                    condition = self.HEADER[i] + ' = \'' + data[self.HEADER[i]] + '\' AND '
-                select_query += condition
-            if select_query[-6:-1] == 'WHERE':
-                select_query = select_query.removesuffix(' WHERE ')
-            else:
-                select_query = select_query.removesuffix(' AND ')
+                if self.COLUMNS[k] == 'int':
+                    conditions.append(k + ' = ' + v)
+                elif self.COLUMNS[k] == 'str':
+                    conditions.append(k + ' = \'' + v + '\'')
+            select_query += " AND ".join(conditions)
+            if len(conditions) == 0:
+                select_query = select_query.removesuffix('WHERE ')
 
             if sort_by != None:
                 select_query += ' ORDER BY '
