@@ -8,7 +8,7 @@ Week 2 (13 - 19 November):
 |_ A template for each subpages each representing the team members' own main tables and the other responsible tables is prepared and placed onto homepage.
 |_ Beginning from this week, each team member will continue to implement his own subpage/category page on his own.
 
-Week 3 (20- 26 November):
+Week 3 (20 - 26 November):
 |_ Modify code structure
   |_ Each table has a folder
 |_ Add functionalities for the fielding table.
@@ -16,3 +16,9 @@ Week 3 (20- 26 November):
   |_ Update a record
   |_ Delete a record 
   |_ Insert a new record
+
+Week 5 (4 - 10 December):
+|_ Put an error tamplate to the home directory
+  |_ Redirect users to the error page when a db operation fails
+|_ Fix the navigation bar and redesign it
+|_ Add ordering by column functionality to the fielding table
