@@ -77,12 +77,13 @@ def players_update_search():
 
     if request.method == 'GET':
         for i, (k, _) in enumerate(form.__dict__['_fields'].items()):
-            if i < len(current_app.config['PLAYERS'].COLUMNS.keys()):
+            if i < len(players.COLUMNS.keys()):
                 form.__dict__['_fields'][k].data = player[i]
     if request.method == 'POST' and form.validate_on_submit():
 
-        query_string = "&".join(f"{list(current_app.config['PLAYERS'].COLUMNS.keys())[i]}={form.__dict__['_fields'][k].data}"
-                                 for i, (k, _) in enumerate(form.__dict__['_fields'].items()) if form.__dict__['_fields'][k].data != '' and i < len(current_app.config['PLAYERS'].COLUMNS.keys() ))
+        query_string = "&".join(f"{list(players.COLUMNS.keys())[i]}={form.__dict__['_fields'][k].data}"
+                                 for i, (k, _) in enumerate(form.__dict__['_fields'].items())
+                                   if form.__dict__['_fields'][k].data != '' and i < len(players.COLUMNS.keys() ))
         print("QUERY_STRİNG", query_string)
         return redirect(url_for('players.players_update') + f'?key={key}&{query_string}')
     return render_template('players.html', form=form, purpose='Update')
@@ -97,31 +98,35 @@ def players_update():
     flash(f'Successfully updated!', 'success')
     return render_template('home.html')
 
-@app.route('/players/<row_list:query_list>/delete')
-@app.route('/players/<row_list:query_list>/delete/')
-def players_delete(query_list):
+@app.route('/players/delete')
+def players_delete():
     players = current_app.config['PLAYERS']
-    players.delete_players(query_list)
+    key = request.args.get('key', None, type=str)
+
+    players.delete_players(key)
     flash(f'Successfully deleted!', 'warning')
     return render_template('home.html')
 
-@app.route('/players/insert', methods=["GET", "POST"])
-@app.route('/players/insert/', methods=["GET", "POST"])
+@app.route('/players/insert_form', methods=["GET", "POST"])
 def players_insert_search():
     form = PlayersSearchForm()
+    players = current_app.config['PLAYERS']
     if request.method == 'POST' and form.validate_on_submit():
-        query = query_fill(form, current_app.config['PLAYERS'])
-        return redirect(url_for('players.players_insert', query_list=query))
+        query_string = "&".join(f"{list(players.COLUMNS.keys())[i]}={form.__dict__['_fields'][k].data}"
+                                 for i, (k, _) in enumerate(form.__dict__['_fields'].items())
+                                   if form.__dict__['_fields'][k].data != '' and i < len(players.COLUMNS.keys() ))
+        print("QUERY_STRİNG", query_string)
+        return redirect(url_for('players.players_insert')+f'?{query_string}')
     return render_template('players.html', form=form, purpose='Insertion')
 
-@app.route('/players/<row_list:query_list>/insert')
-@app.route('/players/<row_list:query_list>/insert/')
-def players_insert(query_list):
+@app.route('/players/insert', methods=["GET", "POST"])
+def players_insert():
     players = current_app.config['PLAYERS']
-    players.insert_players(query_list)
-    results = players.view_players(query_list)
+    queries = getURLQuery(request.args.to_dict())
+    players.insert_players(queries)
+    results = players.view_players(queries) # results may have multiple rows... #TODO: check if this is the case
 
     if len(results) == 0:
-        flash(f'No results were found! Try again.', 'danger')
+        flash(f'Error ! Try again.', 'danger')
         return redirect(url_for('players.players_insert_search'))
-    return render_template('players_detail.html', result=results[0], header=current_app.config['PLAYERS'].HEADER)
+    return render_template('players_detail.html', result=results[0], header=list(current_app.config['PLAYERS'].COLUMNS.keys()))

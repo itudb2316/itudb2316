@@ -55,9 +55,9 @@ class Players:
                 if v == 'None' or v == None:
                     continue
                 if self.COLUMNS[k] == 'int':
-                    conditions.append(k + ' = ' + v)
+                    conditions.append("players." + k + ' = ' + v)
                 elif self.COLUMNS[k] == 'str':
-                    conditions.append(k + ' = \'' + v + '\'')
+                    conditions.append("players." + k + ' = \'' + v + '\'')
             select_query += " AND ".join(conditions)
             if len(conditions) == 0:
                 select_query = select_query.removesuffix('WHERE ')
@@ -68,6 +68,8 @@ class Players:
                     select_query += 'CASE WHEN ' + sort_by + ' IS NULL THEN 1 ELSE 0 END, '
                 
                 select_query += sort_by + ' ' + order
+            
+            select_query += ';'
 
             print()
             print(select_query)
@@ -88,17 +90,21 @@ class Players:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
             update_query = 'UPDATE players SET '
+
+            print("NEW_DATA", new_data)
             
             new_values = []
             for k,v in new_data.items():
+                if '\'' in v:
+                    v = v.replace('\'', '\\\'')
                 if v == 'None' or v == None:
-                    new_values.append(k + ' = NULL')
+                    new_values.append("players." + k + ' = NULL')
                 elif self.COLUMNS[k] == 'int':
-                    new_values.append(k + ' = ' + v)
+                    new_values.append("players." + k + ' = ' + v)
                 elif self.COLUMNS[k] == 'str':
-                    new_values.append(k + ' = \'' + v + '\'')
+                    new_values.append("players." + k + ' = \'' + v + '\'')
             update_query += ", ".join(new_values)
-            update_query += ' WHERE lahmanID = ' + key
+            update_query += ' WHERE players.lahmanID = ' + key + ";"
 
 
             print()
@@ -116,50 +122,66 @@ class Players:
         return results
         
 
-    def delete_players(self, row):
+    def delete_players(self, key):
         try:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
-            data = list2dict(row, self.HEADER)
-            delete_query = 'DELETE FROM players WHERE '
-            for i in range(len(self.HEADER)):
-                if data[self.HEADER[i]] == 'None':
-                    condition = self.HEADER[i] + ' IS NULL AND '
-                elif self.COL_TYPES[i] == 'int':
-                    condition = self.HEADER[i] + ' = ' + data[self.HEADER[i]] + ' AND '
-                elif self.COL_TYPES[i] == 'str':
-                    condition = self.HEADER[i] + ' = \'' + data[self.HEADER[i]] + '\' AND '
-                delete_query += condition
-            delete_query = delete_query.removesuffix(' AND ')
+
+            delete_query = 'DELETE FROM players WHERE players.lahmanID = ' + key + ';'
             print()
             print(delete_query)
             cursor.execute(delete_query)
+            results = cursor.fetchall()
             db.commit()
         except dbapi.Error as err:
             db.rollback()
+            results = []
         finally:
             cursor.close()
             db.close()
 
-    def insert_players(self, row):
+        return results
+
+    def insert_players(self, new_data):
         try:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
-            data = list2dict(row, self.HEADER)
+
+            players = app.config['PLAYERS']
+            
             insert_query = 'INSERT INTO players ('
-            for i in self.HEADER:
-                insert_query += i + ', '
-            insert_query = insert_query.removesuffix(', ')
-            insert_query += ') VALUES ('
-            for i in range(len(self.HEADER)):
-                if data[self.HEADER[i]] == 'None':
-                    insert_query += 'NULL'
-                elif self.COL_TYPES[i] == 'int':
-                    insert_query +=  data[self.HEADER[i]] + ', '
-                elif self.COL_TYPES[i] == 'str':
-                    insert_query += '\'' + data[self.HEADER[i]] + '\', '
-            insert_query = insert_query.removesuffix(', ')
-            insert_query += ')'
+            
+            insert_query += ", ".join(players.COLUMNS.keys())
+                                #.join([column_name for column_name in players.COLUMNS.keys()
+                                       #if column_name != 'lahmanID']) #primary key
+
+            insert_query += ') VALUES ( '
+            
+            values = []
+            for k,v in players.COLUMNS.items():
+                #if(k == 'lahmanID'): #primary key
+                    #continue
+
+                if(k not in new_data.keys()):
+                    values.append("NULL")
+                    continue
+                
+                value = new_data[k]
+                if value == 'None' or value == None or value == '':
+                    values.append("NULL")
+                    continue
+
+                if '\'' in value:
+                    value = value.replace('\'', '\\\'')
+                
+                if v == 'int':
+                    values.append(value)
+                elif v == 'str':
+                    values.append('\'' + value + '\'')
+
+            insert_query += ", ".join(values)
+            insert_query += ');'
+
             print()
             print(insert_query)
             cursor.execute(insert_query)
