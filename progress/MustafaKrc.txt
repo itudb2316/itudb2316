@@ -17,3 +17,9 @@ Week 4 (27 Nov - 03 Dec):
     - Did research for user-friendly URLs & implemented for search. Other functionalities will be updated accordingly.
     - Minor bug fixes. (Related to searching values with ',' or '/')
     - Changed the way database credentials are gathered. Now developer has to put informations in environment variables via .env file in root directory. (Prevents leaking sensitive information)
+
+Week 5 (4 - 11 December):
+    - Switched to new query system. Now queries are user-friendly. (Only relevant information are put into URLs & easier to read).
+    - Added safe guards into html forms & queries. Length and special characters are now checked.
+    - Minor bug fixes.
+    
