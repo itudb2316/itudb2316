@@ -1,6 +1,7 @@
 import mysql.connector as dbapi
 from flask import current_app as app
 from app.tools import list2dict
+import ast
 
 class Teamshalf:
     HEADER = ['yearID', 'teamID', 'Half', 'DivWin', 'teamshalf.Rank', 'G',
@@ -16,6 +17,9 @@ class Teamshalf:
               'W', 'L']
     
     teams_table_insertion_column_types = ['str', 'int', 'str', 'str', 'str', 'str', 'str', 'int', 'int', 'int', 'int']
+
+    smart_query_headers = ['teamshalf.teamID', 'teamshalf_teams.name', 'teamshalf.Half', 'teamshalf.Rank', '((teamshalf.W / teamshalf.G)*100)']
+    smart_query_headers_column_types = ['str', 'str', 'str', 'int', 'float']
 
 
     def __init__(self):
@@ -259,3 +263,91 @@ class Teamshalf:
         finally:
             cursor.close()
             db.close()
+
+    def view_smart_query_first_half(self, selected_teams):
+        try:
+            db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
+            cursor = db.cursor()
+            print("Buraya gelenler: ",selected_teams)
+            parsed_list = ast.literal_eval(selected_teams)
+            print(parsed_list)
+        
+
+            smart_query = 'SELECT teamshalf.teamID, teamshalf_teams.name, teamshalf_teams.lgID, teamshalf.Half, teamshalf.Rank, ((teamshalf.W/teamshalf.G) * 100) AS WinRatio FROM teamshalf JOIN teamshalf_teams ON teamshalf.teamID = teamshalf_teams.teamID WHERE teamshalf_teams.name IN ('
+            apostrophe = "'"
+            for team in parsed_list:
+                smart_query = smart_query + apostrophe
+                smart_query = smart_query + team
+                smart_query = smart_query + apostrophe
+                smart_query = smart_query + ','
+
+            smart_query = smart_query.removesuffix(',')
+            smart_query = smart_query + ') '
+            smart_query = smart_query + "AND teamshalf.Half = '1' ORDER BY WinRatio DESC;"
+            print()
+            print(smart_query)
+            cursor.execute(smart_query)
+            results = cursor.fetchall()
+            db.commit()
+
+        except dbapi.Error as err:
+            db.rollback()
+        finally:
+            cursor.close()
+            db.close()
+        return results
+    
+
+    def view_smart_query_second_half(self, selected_teams):
+        try:
+            db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
+            cursor = db.cursor()
+            print("Buraya gelenler: ",selected_teams)
+            parsed_list = ast.literal_eval(selected_teams)
+            print(parsed_list)
+        
+
+            smart_query = 'SELECT teamshalf.teamID, teamshalf_teams.name, teamshalf_teams.lgID, teamshalf.Half, teamshalf.Rank, ((teamshalf.W/teamshalf.G) * 100) AS WinRatio FROM teamshalf JOIN teamshalf_teams ON teamshalf.teamID = teamshalf_teams.teamID WHERE teamshalf_teams.name IN ('
+            apostrophe = "'"
+            for team in parsed_list:
+                smart_query = smart_query + apostrophe
+                smart_query = smart_query + team
+                smart_query = smart_query + apostrophe
+                smart_query = smart_query + ','
+
+            smart_query = smart_query.removesuffix(',')
+            smart_query = smart_query + ') '
+            smart_query = smart_query + "AND teamshalf.Half = '2' ORDER BY WinRatio DESC;"
+            print()
+            print(smart_query)
+            cursor.execute(smart_query)
+            results = cursor.fetchall()
+            db.commit()
+
+        except dbapi.Error as err:
+            db.rollback()
+        finally:
+            cursor.close()
+            db.close()
+        return results
+
+
+    def get_names(self):
+        try:
+            db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
+            cursor = db.cursor()
+            query = 'SELECT DISTINCT name from teamshalf, teamshalf_teams WHERE teamshalf.teamID = teamshalf_teams.teamID;'
+            print(query)
+            cursor.execute(query)
+            results = cursor.fetchall()
+            names = []
+            for row in results:
+                names.append(row[0])  # Accessing the first column in each tuple
+            db.commit()
+
+        except dbapi.Error as err:
+            db.rollback()
+        finally:
+            cursor.close()
+            db.close()
+        return names

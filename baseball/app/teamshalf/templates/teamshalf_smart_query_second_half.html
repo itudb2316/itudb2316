@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Teams' Second Half Season Statistics Page</h1>
+
+<form method="post" action="{{ url_for('teamshalf.teamshalf_smart_query_second_half') }}">
+    {{ form.hidden_tag() }}
+    
+    {{ form.name.label }} {{ form.name(id='name') }}
+    
+
+    {{ form.add }}
+    {{ form.submit }}
+    <input type="hidden" name="eklenen" id="added-teams-input">
+</form>
+
+<!-- Display added teams -->
+<div id="added-teams" name = "added-teams"></div>
+
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let addedTeams = [];
+        console.log("Here");
+
+        document.getElementById('add').addEventListener('click', function(e) {
+            e.preventDefault();
+            let selectedTeam = document.getElementById('name').value;
+
+            if (selectedTeam && !addedTeams.includes(selectedTeam)) {
+                addedTeams.push(selectedTeam);
+                document.getElementById('added-teams').innerHTML = 'Added Teams: ' + addedTeams.join(', ');
+                console.log(addedTeams);
+                document.getElementById('added-teams-input').value = JSON.stringify(addedTeams);
+                console.log(document.getElementById('added-teams-input').value)
+                
+            } else {
+                alert('Please select a team or the team is already added.');
+            }
+        });
+        
+    });
+</script>
+
+
+{% endblock content %}

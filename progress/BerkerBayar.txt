@@ -25,3 +25,8 @@ Week 5 (4 Dec - 10 Dec):
 
     - The search, update, delete and insert functionalities of the teamshalf page are tested and fixed
     - All CRUD operations on the teamshalf table are now functional
+
+Week 6 (11 Dec - 17 Dec):
+
+    - Added the first and second half season statistics pages and implemented a smart query to compare team statistics
+    - The user can now select and add teams from a drop down menu and compare the half season statistics of these selected teams and filter the results

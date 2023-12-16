@@ -1,6 +1,6 @@
-from flask import current_app, render_template, request, redirect, url_for, flash
+from flask import current_app, render_template, request, redirect, url_for, flash, jsonify, json
 from . import teamshalf_blueprint as app
-from .search import TeamshalfSearchForm, TeamshalfUpdateForm, TeamshalfInsertionForm
+from .search import TeamshalfSearchForm, TeamshalfUpdateForm, TeamshalfInsertionForm, TeamshalfSmartQueryForm
 from app.tools import paginate
 
 def query_fill(form, list):
@@ -106,3 +106,47 @@ def teams_insert(query_list):
         flash(f'No results were found! Try again.', 'danger')
         return redirect(url_for('teamshalf.teams_insert_search'))
     return render_template('teamshalf_detail.html', result=results[0], header=current_app.config['TEAMSHALF'].joined_search_headers)
+
+
+@app.route('/teamshalf/smart_query_first_half', methods=["GET", "POST"])
+@app.route('/teamshalf/smart_query_first_half/', methods=["GET", "POST"])
+def teamshalf_smart_query_first_half():
+    teamshalf = current_app.config['TEAMSHALF']
+    form = TeamshalfSmartQueryForm()
+    form.name.choices = teamshalf.get_names()
+    added_teams = request.form.get('eklenen')
+    
+
+    # Check if the form is valid
+    if request.method == 'POST':
+        print('Teams submitted successfully: ',added_teams)
+        results = teamshalf.view_smart_query_first_half(added_teams)
+        
+        if len(results) == 0:
+            flash(f'No results were found! Try again.', 'danger')
+            return redirect(url_for('teamshalf.teamshalf_smart_query_first_half'))
+        return render_template('teamshalf_smart_query_results_first_half.html', results=results)
+
+    return render_template('teamshalf_smart_query_first_half.html', form=form)
+
+
+@app.route('/teamshalf/smart_query_second_half', methods=["GET", "POST"])
+@app.route('/teamshalf/smart_query_second_half/', methods=["GET", "POST"])
+def teamshalf_smart_query_second_half():
+    teamshalf = current_app.config['TEAMSHALF']
+    form = TeamshalfSmartQueryForm()
+    form.name.choices = teamshalf.get_names()
+    added_teams = request.form.get('eklenen')
+    
+
+    # Check if the form is valid
+    if request.method == 'POST':
+        print('Teams submitted successfully: ',added_teams)
+        results = teamshalf.view_smart_query_second_half(added_teams)
+        
+        if len(results) == 0:
+            flash(f'No results were found! Try again.', 'danger')
+            return redirect(url_for('teamshalf.teamshalf_smart_query_second_half'))
+        return render_template('teamshalf_smart_query_results_second_half.html', results=results)
+
+    return render_template('teamshalf_smart_query_second_half.html', form=form)

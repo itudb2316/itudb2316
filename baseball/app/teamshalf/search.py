@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SubmitField
+from wtforms import SelectField, StringField, IntegerField, SubmitField, RadioField, SelectMultipleField, HiddenField
 from wtforms.validators import DataRequired, Length
 
 class TeamshalfSearchForm(FlaskForm):
@@ -42,3 +42,9 @@ class TeamshalfInsertionForm(FlaskForm):
     W = IntegerField('Wins', default=-1, render_kw={'placeholder': 'Enter the amount of wins that the team has'})
     L = IntegerField('Losses', default=-1, render_kw={'placeholder': 'Enter the amount of losses that the team has'})
     submit = SubmitField('Insert', render_kw={'class': 'btn btn-outline-secondary'})
+
+class TeamshalfSmartQueryForm(FlaskForm):
+    name = SelectField('Team Name', choices=[], validators=[DataRequired()])
+    add = SubmitField('Add', render_kw={'class': 'btn btn-outline-secondary'})
+    submit = SubmitField('Submit', render_kw={'class': 'btn btn-outline-secondary'})
+    selected_teams = HiddenField('Selected Teams')

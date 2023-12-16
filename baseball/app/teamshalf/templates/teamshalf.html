@@ -1,6 +1,33 @@
 {% extends "layout.html" %}
 {% block content %}
+<style>
+    .button-container {
+        display: flex;
+    }
+
+    .button-link {
+        display: inline-block;
+        padding: 10px 20px;
+        margin-right: 10px;
+        text-decoration: none;
+        color: #fff;
+        background-color: #008000; 
+        border: 1px solid #008000; 
+        border-radius: 5px;
+    }
+
+    .button-link:hover {
+        background-color: #006600; 
+        border: 1px solid #006600; 
+    }
+</style>
+
 <h1>Teams' Half Season Info {{ purpose|capitalize }} Page</h1>
+<div class="button-container">
+    <a class="button-link" href="{{ url_for('teamshalf.teamshalf_smart_query_first_half') }}">First Half Season Stats</a>
+    <a class="button-link" href="{{ url_for('teamshalf.teamshalf_smart_query_second_half') }}">Second Half Season Stats</a>
+</div>
+
 <div class="content-section">
     <form method="POST" action="" novalidate>
         {{ form.hidden_tag() }}
@@ -23,7 +50,7 @@
         {% endfor %}
         <div class="form-group mt-3 mb-3">
             {{ form.submit() }}
-        </div>
+        </div>      
     </form>
 </div>
 {% endblock content %}

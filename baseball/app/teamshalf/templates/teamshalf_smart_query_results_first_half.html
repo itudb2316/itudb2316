@@ -1,0 +1,106 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Teams' First Half Season Statistics Page</h1>
+<article class="media content-section">
+    <div class="media-body">
+        <ul class="article-content list-group">
+        </ul>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col" class="sortable" data-column="team_id">Team ID</th>
+                        <th scope="col" class="sortable" data-column="team_name">Team Name</th>
+                        <th scope="col" class="sortable" data-column="league_id">League ID</th>
+                        <th scope="col" class="sortable" data-column="half">Half</th>
+                        <th scope="col" class="sortable" data-column="ranking">Ranking</th>
+                        <th scope="col" class="sortable" data-column="win_ratio">Win Ratio (%)</th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                    <tr>
+                        {% for entry in result %}
+                        <td>{{ entry }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                    <label for="teamID_filter">Filter by Team ID:</label>
+                    <input type="text" id="teamIDFilter" placeholder="Enter Team ID">
+                    <br>
+
+                    <label for="teamname_filter">Filter by Team Name:</label>
+                    <input type="text" id="teamnameFilter" placeholder="Enter Team Name">
+                    <br>
+
+                    <label for="league_filter">Filter by League ID:</label>
+                    <input type="text" id="leagueFilter" placeholder="Enter League Name">
+                    <br>
+
+                    <label for="rank_filter">Filter by Ranking:</label>
+                    <input type="text" id="rankFilter" placeholder="Enter Rank">
+                    <br>
+
+                    <button id="applyFilters">Apply Filters</button>
+                    <button id="clearFilters">Clear Filters</button>
+
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</article>
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#applyFilters').click(function() {
+            var teamIDFilter = $('#teamIDFilter').val().toLowerCase();
+            var teamNameFilter = $('#teamnameFilter').val().toLowerCase();
+            var leagueFilter = $('#leagueFilter').val().toLowerCase();
+            var rankFilter = $('#rankFilter').val().toLowerCase();
+
+            updateResults(teamIDFilter, teamNameFilter, leagueFilter, rankFilter);
+        });
+
+        $('#clearFilters').click(function() {
+            // Clear all filter inputs
+            $('#teamIDFilter').val('');
+            $('#teamnameFilter').val('');
+            $('#leagueFilter').val('');
+            $('#rankFilter').val('');
+
+            // Show all rows in the table
+            $('.table tbody tr').show();
+        });
+    });
+
+    function updateResults(teamIDFilter, teamNameFilter, leagueFilter, rankFilter) {
+        $('.table tbody tr').each(function() {
+            var teamID = $(this).find('td:eq(0)').text().toLowerCase();
+            var teamName = $(this).find('td:eq(1)').text().toLowerCase();
+            var league = $(this).find('td:eq(2)').text().toLowerCase();
+            var rank = $(this).find('td:eq(4)').text().toLowerCase();
+
+            // Check if each column matches the corresponding filter
+            var matchesTeamID = teamID.includes(teamIDFilter);
+            var matchesTeamName = teamName.includes(teamNameFilter);
+            var matchesLeague = league.includes(leagueFilter);
+            var matchesRank = rank.includes(rankFilter);
+
+            // Show rows only if all filter criteria are met
+            if (matchesTeamID && matchesTeamName && matchesLeague && matchesRank) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    }
+</script>
+
+
+
+{% endblock content %}
