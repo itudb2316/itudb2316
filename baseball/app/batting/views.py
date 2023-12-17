@@ -51,10 +51,15 @@ def batting_info():
     pages = len(results) // per_page + 1
     paginated_data = paginate(results, page, per_page)
     page_info = {'page': page, 'per_page': per_page,'pages': pages}
+    
+    Titles = ["Player", "Year", "Stint", "Team", "League", "Games", "At Bats",
+              "Runs", "Hits", "Doubles", "Triples", "Home Runs", "Runs Batted In",
+              "Stolen Bases", "Caught Stealing", "Strikeouts"]
+    
     if len(results) == 0:
         flash(f'No results were found.', 'danger')
         return redirect(url_for('batting.batting_search'))
-    return render_template('batting_info.html', query = query,results=paginated_data, header=current_app.config['BATTING'].header_type.keys(), page_info=page_info, sort_by=sort_by, order=order)
+    return render_template('batting_info.html', query = query,results=paginated_data, header=Titles, page_info=page_info, sort_by=sort_by, order=order)
 
 @app.route('/batting/detail')
 def batting_detail():
@@ -68,73 +73,75 @@ def batting_detail():
     return render_template('batting_detail.html', result=results[0], header=list(current_app.config['BATTING'].header_type.keys()))
     
     
-@app.route('/batting/insert', methods=["GET", "POST"])
-@app.route('/batting/insert/', methods=["GET", "POST"])
+@app.route('/batting/insert_form', methods=["GET", "POST"])
 def batting_insert_search():
     form = BattingSearchForm()
+    battings = current_app.config['BATTING']
     if request.method == 'POST' and form.validate_on_submit():
-        query = filled_query(form, current_app.config['BATTING'])
-        return redirect(url_for('batting.batting_insert', query_list=query))
+        query_string = "&".join(f"{list(battings.header_type.keys())[i]}={form.__dict__['_fields'][k].data}"
+                                 for i, (k, _) in enumerate(form.__dict__['_fields'].items())
+                                   if form.__dict__['_fields'][k].data != '' and i < len(battings.header_type.keys() ))
+        print("QUERY STRING: ", query_string)
+        return redirect(url_for('batting.batting_insert')+f'?{query_string}')
     return render_template('batting.html', form=form, purpose='Insertion')
 
-@app.route('/batting/<row_list:query_list>/insert')
-@app.route('/batting/<row_list:query_list>/insert/')
-def batting_insert(query_list):
-    batting = current_app.config['BATTING']
-    batting.insert_batting(query_list)
-    results = batting.view_batting(query_list)
+@app.route('/batting/insert', methods=["GET", "POST"])
+def batting_insert():
+    battings = current_app.config['BATTING']
+    queries = get_url_query(request.args.to_dict())
+    battings.insert_batting(queries)
+    results = battings.view_batting(queries)
 
     if len(results) == 0:
         flash(f'No results were found! Try again.', 'danger')
         return redirect(url_for('batting.batting_insert_search'))
-    return render_template('batting_detail.html', result=results[0], header=current_app.config['BATTING'].header)
+    return render_template('batting_detail.html', result=results[0], header=list(current_app.config['BATTING'].header_type.keys()))
 
 @app.route('/batting/update_form', methods=["GET", "POST"])
 def batting_update_search():
     form = BattingSearchForm()
     battings = current_app.config['BATTING']
-    key1 = request.args.get('key', None, type=str)
-    key2 = request.args.get('key', None, type=int)
-    key3 = request.args.get('key', None, type=str)
-    key4 = request.args.get('key', None, type=str)
+    key1 = request.args.get('playerID', None, type=str)
+    key2 = request.args.get('yearID', None, type=str)
+    key3 = request.args.get('stint', None, type=str)
     query = {'playerID': key1,
              'yearID': key2,
-             'teamID': key3,
-             'lgID': key4}
-    batting_1 = battings.view_players(query)[0]
-    batting_2 = battings.view_players(query)[1]
-    batting_3 = battings.view_players(query)[3]
-    batting_4 = battings.view_players(query)[4]
+             'teamID': key3}
+    batting_1 = battings.view_batting(query)[0]
+    batting_2 = battings.view_batting(query)[1]
+    batting_3 = battings.view_batting(query)[2]
     if request.method == 'GET':
         for i, (k, _) in enumerate(form.__dict__['_fields'].items()):
             if i < len(current_app.config['BATTING'].header_type.keys()):
                 form.__dict__['_fields'][k].data = batting_1[i]
                 form.__dict__['_fields'][k].data = batting_2[i]
                 form.__dict__['_fields'][k].data = batting_3[i]
-                form.__dict__['_fields'][k].data = batting_4[i]
+    
+    
     if request.method == 'POST' and form.validate_on_submit():
         query_string = "&".join(f"{list(current_app.config['BATTING'].header_type.keys())[i]}={form.__dict__['_fields'][k].data}" for i, (k, _) in enumerate(form.__dict__['_fields'].items()) if form.__dict__['_fields'][k].data != '' and i < len(current_app.config['BATTING'].header_type.keys() ))
+    #Change here for the URL path.
+    
     print("QUERY STRING", query_string)
-    return redirect(url_for('batting.batting_update') + f'?keys={key1}&{query_string}')
+    return redirect(url_for('batting.batting_update') + f'?key1={key1}&key2={key2}&key3={key3}')
 
-@app.route('/batting/update')
+@app.route('/batting/update') #To be fixed.
 def batting_update(query_list, transmit):
     battings = current_app.config['BATTING']
-    key1 = request.args.get('key', None, type=str)
-    key2 = request.args.get('key', None, type=int)
-    key3 = request.args.get('key', None, type=str)
-    key4 = request.args.get('key', None, type=str)
-    keys = [key1, key2, key3, key4]
+    key1 = request.args.get('playerID', None, type=str)
+    key2 = request.args.get('yearID', None, type=str)
+    key3 = request.args.get('stint', None, type=str)
+    keys = [key1, key2, key3]
     queries = get_url_query(request.args.to_dict())
     battings.update_batting(keys, queries)
     flash(f'Update successful.', 'success')
     return render_template('home.html')
     
 
-@app.route('/batting/<row_list:query_list>/delete')
-@app.route('/batting/<row_list:query_list>/delete/')
-def batting_delete(query_list):
+@app.route('/batting/delete')
+def batting_delete():
     batting = current_app.config['BATTING']
-    batting.delete_batting(query_list)
+    key = request.args.get('key', None, type=str)
+    batting.delete_batting(key)
     flash(f'Successfully deleted!', 'warning')
     return render_template('home.html')

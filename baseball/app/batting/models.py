@@ -45,9 +45,9 @@ class Batting:
                 if v == 'None' or v == None:
                     continue
                 if self.header_type[k] == 'int':
-                    conditions.append(k + ' = ' + v)
+                    conditions.append("batting." + k + ' = ' + v)
                 elif self.header_type[k] == 'str':
-                    conditions.append(k + ' = \'' + v + '\'')
+                    conditions.append("batting." + k + ' = \'' + v + '\'')
             select_query += " AND ".join(conditions)
             if len(conditions) == 0:
                 select_query = select_query.removesuffix('WHERE ')
@@ -69,38 +69,46 @@ class Batting:
             db.close()
         return result
             
-    def insert_batting(self, key, data):
+    def insert_batting(self, data):
         try:
             db = dbapi.connect(**self.app.config['MYSQL_CONN']) 
             cursor = db.cursor()
+            battings = app.config['BATTING']
             insert_query = 'INSERT INTO batting ('
-            for key in self.header_type.keys():
-                insert_query += key + ', '
-            insert_query = insert_query.removesuffix(', ')
-            insert_query += ') VALUES ('
-            columns = []
-            for k,v in data.items():
-                if v == 'None' or v == None:
-                    columns.append(k + 'NULL')
-                if self.header_type[k] == 'int':
-                    columns.append(v + ', ')
-                elif self.header_type[k] == 'str':
-                    columns.append('\'' + v + '\'' + ', ')
-            insert_query += ', '.join(columns)
-            insert_query = insert_query.removesuffix(', ')
-            insert_query += ')'
+            insert_query += ", ".join(battings.header_type.keys())
+            insert_query += ') VALUES ( '
+            
+            values = []
+            for k,v in battings.header_type.items():
+
+                if(k not in data.keys()):
+                    values.append("NULL")
+                    continue
+                
+                value = data[k]
+                if value == 'None' or value == None or value == '':
+                    values.append("NULL")
+                    continue
+
+                if '\'' in value:
+                    value = value.replace('\'', '\\\'')
+                
+                if v == 'int':
+                    values.append(value)
+                elif v == 'str':
+                    values.append('\'' + value + '\'')
+
+            insert_query += ", ".join(values)
+            insert_query += ');'
             print()
             print(insert_query)
             cursor.execute(insert_query)
-            result = cursor.fetchall()
             db.commit()
         except dbapi.Error as err:
             db.rollback()
-            result = []
         finally:
             cursor.close()
             db.close()
-        return result
 
     def update_batting(self, keys, data):
         try:
@@ -110,11 +118,11 @@ class Batting:
             conditions = []
             for k,v in data.items():
                 if v == 'None' or v == None:
-                    conditions.append(k + ' NULL')
+                    conditions.append("batting." + k + ' NULL')
                 if self.header_type[k] == 'int':
-                    conditions.append(k + ' = ' + v)
+                    conditions.append("batting." + k + ' = ' + v)
                 elif self.header_type[k] == 'str':
-                    conditions.append(k + ' = \'' + v + '\'')
+                    conditions.append("batting." + k + ' = \'' + v + '\'')
             update_query += ', '.join(conditions)
             update_query += ' WHERE playerID = ' + keys[0] + ' AND yearID = ' + keys[1] + 'AND teamID = ' + keys[2] + 'AND lgID = ' + keys[3]
             print()

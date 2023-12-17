@@ -4,8 +4,8 @@ from wtforms.validators import DataRequired, Length
 
 class BattingSearchForm(FlaskForm):
     playerID = StringField('Player ID', [Length(max=100)], default="", render_kw={'placeholder': 'Enter the player\'s ID'})
-    year = IntegerField('Year', validators=[validators.Optional()], default=None, render_kw={'placeholder': 'Enter the year'})
-    stint = IntegerField('Stint', validators=[validators.Optional()], default=None, render_kw={'placeholder': 'Enter the player\'s stint'})
+    year = IntegerField('Year', validators=[validators.Optional(), validators.NumberRange(min=4)], default=None, render_kw={'placeholder': 'Enter the year'})
+    stint = IntegerField('Stint', validators=[validators.Optional(), validators.NumberRange(min=1)], default=None, render_kw={'placeholder': 'Enter the player\'s stint'})
     teamID = StringField('Team', [Length(max=3)], default="", render_kw={'placeholder': 'Enter the player\'s team'})
     lgID = StringField('League', [Length(max=2)], default="", render_kw={'placeholder': 'Enter the player\'s league in MLB'})
     G = IntegerField('Games', validators=[validators.Optional()], default=None, render_kw={'placeholder': 'Enter the number of games'})

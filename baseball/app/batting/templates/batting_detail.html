@@ -5,8 +5,8 @@
     <div class="media-body">
         <ul class="article-content list-group">
             <div class="btn-group" role="group" aria-label="Basic example">
-                <a href="{{ url_for('batting.batting_update_search')}}?keys={{result[0]}}{{result[1]}}{{result[3]}}{{result[4]}}" class="btn btn-secondary">Update</a>
-                <a href="{{ url_for('batting.batting_delete', query_list=result) }}" class="btn btn-secondary">Delete</a>
+                <a href="{{ url_for('batting.batting_update_search')}}?playerID={{result[0]}}&yearID={{result[1]}}&stint={{result[2]}}" class="btn btn-secondary">Update</a>
+                <a href="{{ url_for('batting.batting_delete')}}?key={{result[0]}}" class="btn btn-secondary">Delete</a>
             </div>
             {% for col in result %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
