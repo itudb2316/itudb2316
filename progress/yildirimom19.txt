@@ -19,3 +19,13 @@ Week 4 (27 Nov - 03 Dec):
   - managers_detail query is adjusted to contain only the primary key.
   - Detected bugs are fixed.
   - Embeddinng into home page will be implemented in later weeks. 
+
+Week 5 (4-10 Dec):
+  - Switched to new query system. Now queries are user-friendly such that only relevant information are put into URLs to increase readability.
+  - Added safe guards into html forms & queries. 
+  - Length and special characters are now checked.
+
+Week 6 (11-17 Dec):
+  - Managers page is embedded into Home page and the project as a whole.
+  - Column ordering in both ascending and descending way is implemented to increase usability.
+  - Bugs related to route and URL are fixed.

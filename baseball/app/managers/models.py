@@ -3,29 +3,63 @@ from flask import current_app as app
 from app.tools import list2dict
 
 class Managers:
-    HEADER = [] # Column names will be inserted here.
-    COL_TYPES = [] # Column types will be inserted here.
-    
+
+    # Column names for Managers table will be inserted here.
+    COLUMNS = {
+    'lahmanID': 'int',
+    'playerID': 'str',
+    'managerID': 'str',
+    'hofID': 'str',
+    'birthYear': 'int',
+    'birthMonth': 'int',
+    'birthDay': 'int',
+    'birthCountry': 'str',
+    'birthState': 'str',
+    'birthCity': 'str',
+    'deathYear': 'int',
+    'deathMonth': 'int',
+    'deathDay': 'int',
+    'deathCountry': 'str',
+    'deathState': 'str',
+    'deathCity': 'str',
+    'nameFirst': 'str',
+    'nameLast': 'str',
+    'nameNote': 'str',
+    'nameGiven': 'str',
+    'nameNick': 'str',
+    'weight': 'int',
+    'height': 'int',
+    'bats': 'str',
+    'throws': 'str',
+    'debut': 'str',
+    'finalGame': 'str',
+    'college': 'str',
+    'lahman40ID': 'str',
+    'lahman45ID': 'str',
+    'retroID': 'str',
+    'holtzID': 'str',
+    'bbrefID': 'str'
+    }  
+
     def __init__(self):
         self.app = app
 
-    def view_managers(self, row, sort_by=None, order=None, exclude_null=True): 
+    def view_managers(self, queries, sort_by=None, order=None, exclude_null=True): 
         try:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
-            data = list2dict(row, self.HEADER)
             select_query = 'SELECT '
-            select_query += ", ".join(self.HEADER)
+            select_query += ", ".join(self.COLUMNS.keys())
             select_query += ' FROM managers WHERE '
             
             conditions = []
-            for i in range(len(self.HEADER)):
-                if data[self.HEADER[i]] == 'None':
+            for k,v in queries.items():
+                if v == 'None' or v == None:
                     continue
-                if self.COL_TYPES[i] == 'int':
-                    conditions.append(self.HEADER[i] + ' = ' + data[self.HEADER[i]])
-                elif self.COL_TYPES[i] == 'str':
-                    conditions.append(self.HEADER[i] + ' = \'' + data[self.HEADER[i]] + '\'')
+                if self.COLUMNS[k] == 'int':
+                    conditions.append("managers." + k + ' = ' + v)
+                elif self.COLUMNS[k] == 'str':
+                    conditions.append("managers." + k + ' = \'' + v + '\'')
             select_query += " AND ".join(conditions)
             if len(conditions) == 0:
                 select_query = select_query.removesuffix('WHERE ')
@@ -34,7 +68,10 @@ class Managers:
                 select_query += ' ORDER BY '
                 if exclude_null:
                     select_query += 'CASE WHEN ' + sort_by + ' IS NULL THEN 1 ELSE 0 END, '
+                
                 select_query += sort_by + ' ' + order
+            
+            select_query += ';'
 
             print()
             print(select_query)
@@ -50,83 +87,103 @@ class Managers:
             db.close()
         return results
     
-    def update_managers(self, transmit, row):
+    def update_managers(self, key, new_data):
         try:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
-            data = list2dict(row, self.HEADER)
             update_query = 'UPDATE managers SET '
-            for i in range(len(self.HEADER)):
-                if data[self.HEADER[i]] == 'None':
-                    update_query += self.HEADER[i] + ' = NULL AND '
-                elif self.COL_TYPES[i] == 'int':
-                    update_query += self.HEADER[i] + ' = ' + data[self.HEADER[i]] + ' , '
-                elif self.COL_TYPES[i] == 'str':
-                    update_query += self.HEADER[i] + ' = \'' + data[self.HEADER[i]] + '\' , '
-            update_query = update_query.removesuffix(' , ')
-            update_query += ' WHERE '
-            for i in range(len(self.HEADER)):
-                if transmit[i] == 'None':
-                    update_query += self.HEADER[i] + ' IS NULL AND '
-                elif self.COL_TYPES[i] == 'int':
-                    update_query += self.HEADER[i] + ' = ' + transmit[i] + ' AND '
-                elif self.COL_TYPES[i] == 'str':
-                    update_query += self.HEADER[i] + ' = \'' + transmit[i] + '\' AND '
-            update_query = update_query.removesuffix(' AND ')
+
+            print("NEW_DATA", new_data)
+            
+            new_values = []
+            for k,v in new_data.items():
+                if '\'' in v:
+                    v = v.replace('\'', '\\\'')
+                if v == 'None' or v == None:
+                    new_values.append("managers." + k + ' = NULL')
+                elif self.COLUMNS[k] == 'int':
+                    new_values.append("managers." + k + ' = ' + v)
+                elif self.COLUMNS[k] == 'str':
+                    new_values.append("managers." + k + ' = \'' + v + '\'')
+            update_query += ", ".join(new_values)
+            update_query += ' WHERE managers.lahmanID = ' + key + ";"
+
+
             print()
             print(update_query)
             cursor.execute(update_query)
+            results = cursor.fetchall()
             db.commit()
+            
         except dbapi.Error as err:
             db.rollback()
+            results = []
         finally:
             cursor.close()
             db.close()
+        return results
+        
 
-    def delete_managers(self, row):
+    def delete_managers(self, key):
         try:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
-            data = list2dict(row, self.HEADER)
-            delete_query = 'DELETE FROM managers WHERE '
-            for i in range(len(self.HEADER)):
-                if data[self.HEADER[i]] == 'None':
-                    condition = self.HEADER[i] + ' IS NULL AND '
-                elif self.COL_TYPES[i] == 'int':
-                    condition = self.HEADER[i] + ' = ' + data[self.HEADER[i]] + ' AND '
-                elif self.COL_TYPES[i] == 'str':
-                    condition = self.HEADER[i] + ' = \'' + data[self.HEADER[i]] + '\' AND '
-                delete_query += condition
-            delete_query = delete_query.removesuffix(' AND ')
+
+            delete_query = 'DELETE FROM managers WHERE managers.lahmanID = ' + key + ';'
             print()
             print(delete_query)
             cursor.execute(delete_query)
+            results = cursor.fetchall()
             db.commit()
         except dbapi.Error as err:
             db.rollback()
+            results = []
         finally:
             cursor.close()
             db.close()
 
-    def insert_managers(self, row):
+        return results
+
+    def insert_managers(self, new_data):
         try:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
-            data = list2dict(row, self.HEADER)
+
+            managers = app.config['PLAYERS']
+            
             insert_query = 'INSERT INTO managers ('
-            for i in self.HEADER:
-                insert_query += i + ', '
-            insert_query = insert_query.removesuffix(', ')
-            insert_query += ') VALUES ('
-            for i in range(len(self.HEADER)):
-                if data[self.HEADER[i]] == 'None':
-                    insert_query += 'NULL'
-                elif self.COL_TYPES[i] == 'int':
-                    insert_query +=  data[self.HEADER[i]] + ', '
-                elif self.COL_TYPES[i] == 'str':
-                    insert_query += '\'' + data[self.HEADER[i]] + '\', '
-            insert_query = insert_query.removesuffix(', ')
-            insert_query += ')'
+            
+            insert_query += ", ".join(managers.COLUMNS.keys())
+                                #.join([column_name for column_name in managers.COLUMNS.keys()
+                                       #if column_name != 'lahmanID']) #primary key
+
+            insert_query += ') VALUES ( '
+            
+            values = []
+            for k,v in managers.COLUMNS.items():
+                #if(k == 'lahmanID'): #primary key
+                    #continue
+
+                if(k not in new_data.keys()):
+                    values.append("NULL")
+                    continue
+                
+                value = new_data[k]
+                if value == 'None' or value == None or value == '':
+                    values.append("NULL")
+                    continue
+
+                if '\'' in value:
+                    value = value.replace('\'', '\\\'')
+                
+                if v == 'int':
+                    values.append(value)
+                elif v == 'str':
+                    values.append('\'' + value + '\'')
+
+            insert_query += ", ".join(values)
+            insert_query += ');'
+
             print()
             print(insert_query)
             cursor.execute(insert_query)

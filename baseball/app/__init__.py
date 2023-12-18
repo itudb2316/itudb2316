@@ -6,6 +6,7 @@ from .tools import RowListConverter
 from app.fielding.models import Fielding
 from app.players.models import Players
 from app.batting.models import Batting
+from app.managers.models import Managers
 from app.teamshalf.models import Teamshalf
     
 def create_app():
@@ -19,6 +20,7 @@ def create_app():
     # Configure tables
     app.config['FIELDING'] = Fielding()
     app.config['PLAYERS'] = Players()
+    app.config['MANAGERS'] = Managers()
     app.config['BATTING'] = Batting()
     app.config['TEAMSHALF'] = Teamshalf()
 
@@ -26,12 +28,14 @@ def create_app():
     from app.home import home_blueprint
     from app.fielding import fielding_blueprint
     from app.players import players_blueprint
+    from app.managers import managers_blueprint
     from app.batting import batting_blueprint
     from app.teamshalf import teamshalf_blueprint
 
     app.register_blueprint(home_blueprint)
     app.register_blueprint(fielding_blueprint)
     app.register_blueprint(players_blueprint)
+    app.register_blueprint(managers_blueprint)
     app.register_blueprint(batting_blueprint)
     app.register_blueprint(teamshalf_blueprint)
 
