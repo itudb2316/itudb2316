@@ -64,7 +64,10 @@ def players_detail():
         flash(f'No results were found! Try again.', 'danger')
         return redirect(url_for('players.players_search'))
     
-    return render_template('players_detail.html', result=results[0], header=list(current_app.config['PLAYERS'].COLUMNS.keys()))
+    teams_played = players.getPlayedTeams(results[0][1]) # TODO: find a way to gather playerID from results instead of hardcoding index 1
+    
+    return render_template('players_detail.html', result=results[0], header=list(current_app.config['PLAYERS'].COLUMNS.keys()),
+                                                                                teams_played=teams_played)
 
 @app.route('/players/update_form', methods=["GET", "POST"])
 def players_update_search():
@@ -81,11 +84,12 @@ def players_update_search():
                 form.__dict__['_fields'][k].data = player[i]
     if request.method == 'POST' and form.validate_on_submit():
 
-        query_string = "&".join(f"{list(players.COLUMNS.keys())[i]}={form.__dict__['_fields'][k].data}"
-                                 for i, (k, _) in enumerate(form.__dict__['_fields'].items())
-                                   if form.__dict__['_fields'][k].data != '' and i < len(players.COLUMNS.keys() ))
-        print("QUERY_STRİNG", query_string)
-        return redirect(url_for('players.players_update') + f'?key={key}&{query_string}')
+        query_params = request.form.to_dict()
+
+        #remove empty fields and non-column fields and None values
+        query_params = getURLQuery(query_params)
+
+        return redirect(url_for('players.players_update',**query_params) + f'&key={key}')
     return render_template('players.html', form=form, purpose='Update')
 
 @app.route('/players/update')
@@ -112,11 +116,12 @@ def players_insert_search():
     form = PlayersSearchForm()
     players = current_app.config['PLAYERS']
     if request.method == 'POST' and form.validate_on_submit():
-        query_string = "&".join(f"{list(players.COLUMNS.keys())[i]}={form.__dict__['_fields'][k].data}"
-                                 for i, (k, _) in enumerate(form.__dict__['_fields'].items())
-                                   if form.__dict__['_fields'][k].data != '' and i < len(players.COLUMNS.keys() ))
-        print("QUERY_STRİNG", query_string)
-        return redirect(url_for('players.players_insert')+f'?{query_string}')
+        query_params = request.form.to_dict()
+
+        #remove empty fields and non-column fields and None values
+        query_params = getURLQuery(query_params)
+
+        return redirect(url_for('players.players_insert',**query_params))
     return render_template('players.html', form=form, purpose='Insertion')
 
 @app.route('/players/insert', methods=["GET", "POST"])

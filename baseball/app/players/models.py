@@ -42,6 +42,27 @@ class Players:
     def __init__(self):
         self.app = app
 
+
+    def getPlayedTeams(self, key):
+        try:
+            db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
+            cursor = db.cursor()
+            select_query = 'SELECT DISTINCT teams.name, appearances.yearID FROM appearances INNER JOIN teams ON appearances.teamID = teams.teamID WHERE appearances.playerID = \'' + key + '\';'
+            print()
+            print(select_query)
+            cursor.execute(select_query)
+            results = cursor.fetchall()
+            db.commit()
+
+        except dbapi.Error as err:
+            db.rollback()
+            results = []
+        finally:
+            cursor.close()
+            db.close()
+        return results
+            
+
     def view_players(self, queries, sort_by=None, order=None, exclude_null=True): 
         try:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
