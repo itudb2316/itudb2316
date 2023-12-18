@@ -23,3 +23,8 @@ Week 5 (4 - 11 December):
     - Added safe guards into html forms & queries. Length and special characters are now checked.
     - Minor bug fixes.
     
+Week 6 (12 - 17 December):
+    - Did research for normalization of players table.
+    - Added smart query for teams the player played during his career in player_details page.
+    - Updated url query generation, now it is more robust
+    
