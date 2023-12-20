@@ -1,6 +1,6 @@
 from flask import current_app, render_template, request, redirect, url_for, flash
 from . import managers_blueprint as app
-from .search import ManagersSearchForm
+from .search import ManagersSearchForm, ManagersInsertForm
 from app.tools import paginate
 
 def getURLQuery(query):
@@ -13,7 +13,6 @@ def getURLQuery(query):
             url_query[k] = v
     return url_query
     
-
 @app.route('/managers/search', methods=["GET", "POST"])
 def managers_search():
     form = ManagersSearchForm()
@@ -37,7 +36,7 @@ def managers_info():
     managers = current_app.config['MANAGERS']
     
     query = getURLQuery(query)  # Filter query dictionary to include only column names
-
+    print(query)
     results = managers.view_managers(query, sort_by, order)
     page = request.args.get('page', 1, type=int)
     per_page = current_app.config['PER_PAGE']
@@ -54,8 +53,11 @@ def managers_info():
 
 @app.route('/managers/detail')
 def managers_detail():
+
     query = request.args.to_dict()
+
     query = getURLQuery(query)  # Filter query dictionary to include only column names
+
     managers = current_app.config['MANAGERS']
     
     results = managers.view_managers(query)
@@ -71,9 +73,18 @@ def managers_update_search():
     form = ManagersSearchForm()
 
     managers = current_app.config['MANAGERS']
-    key = request.args.get('key', None, type=str)
-    query = {'lahmanID' : key}
-    manager = managers.view_managers(query)[0]
+    
+    oldyearID = request.args.get('yearID', None, type=int)
+    oldteamID = request.args.get('teamID', None, type=str)
+    oldinseason = request.args.get('inseason', None, type=int)
+
+    query = {'yearID' : oldyearID, 'teamID' : oldteamID, 'inseason': oldinseason}
+    print("Query: ", query)
+    
+    manager = managers.view_managers(query)
+    
+    if len(manager) != 0:
+        manager = manager[0]
 
     if request.method == 'GET':
         for i, (k, _) in enumerate(form.__dict__['_fields'].items()):
@@ -83,33 +94,47 @@ def managers_update_search():
 
         query_string = "&".join(f"{list(managers.COLUMNS.keys())[i]}={form.__dict__['_fields'][k].data}"
                                  for i, (k, _) in enumerate(form.__dict__['_fields'].items())
-                                   if form.__dict__['_fields'][k].data != '' and i < len(managers.COLUMNS.keys() ))
-        print("QUERY_STRİNG", query_string)
-        return redirect(url_for('managers.managers_update') + f'?key={key}&{query_string}')
+                                   if form.__dict__['_fields'][k].data != '' and i < len(managers.COLUMNS.keys()))
+        print("QUERY_STRING", query_string)
+        # Use yearID instead of key in the redirect function
+        return redirect(url_for('managers.managers_update') + f'?oldyearID={oldyearID}&oldteamID={oldteamID}&oldinseason={oldinseason}&{query_string}')
     return render_template('managers.html', form=form, purpose='Update')
 
 @app.route('/managers/update')
 def managers_update():
     managers = current_app.config['MANAGERS']
-    key = request.args.get('key', None, type=str)
+
+    oldyearID = request.args.get('oldyearID', None, type=int)
+    oldteamID = request.args.get('oldteamID', None, type=str)
+    oldinseason = request.args.get('oldinseason', None, type=int)
+
     queries = getURLQuery(request.args.to_dict())
 
-    managers.update_managers(key, queries)
-    flash(f'Successfully updated!', 'success')
+    results,successFlag = managers.update_managers(oldyearID, oldteamID, oldinseason, queries)
+
+    if successFlag:
+        flash(f'Successfully updated!', 'success')
+
+    else:
+        flash(f'Failed attempt to update!', 'danger')
     return render_template('home.html')
 
 @app.route('/managers/delete')
 def managers_delete():
     managers = current_app.config['MANAGERS']
-    key = request.args.get('key', None, type=str)
 
-    managers.delete_managers(key)
-    flash(f'Successfully deleted!', 'warning')
+    yearID = request.args.get('yearID', None, type=int)
+    teamID = request.args.get('teamID', None, type=str)
+    inseason = request.args.get('inseason', None, type=int)
+
+    managers.delete_managers(yearID, teamID, inseason)
+    
+    flash(f'Successfully deleted!', 'success')
     return render_template('home.html')
 
 @app.route('/managers/insert_form', methods=["GET", "POST"])
 def managers_insert_search():
-    form = ManagersSearchForm()
+    form = ManagersInsertForm()
     managers = current_app.config['MANAGERS']
     if request.method == 'POST' and form.validate_on_submit():
         query_string = "&".join(f"{list(managers.COLUMNS.keys())[i]}={form.__dict__['_fields'][k].data}"

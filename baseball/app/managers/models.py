@@ -4,42 +4,19 @@ from app.tools import list2dict
 
 class Managers:
 
-    # Column names for Managers table will be inserted here.
+    # Column names for Managers table is inserted here.
     COLUMNS = {
-    'lahmanID': 'int',
-    'playerID': 'str',
-    'managerID': 'str',
-    'hofID': 'str',
-    'birthYear': 'int',
-    'birthMonth': 'int',
-    'birthDay': 'int',
-    'birthCountry': 'str',
-    'birthState': 'str',
-    'birthCity': 'str',
-    'deathYear': 'int',
-    'deathMonth': 'int',
-    'deathDay': 'int',
-    'deathCountry': 'str',
-    'deathState': 'str',
-    'deathCity': 'str',
-    'nameFirst': 'str',
-    'nameLast': 'str',
-    'nameNote': 'str',
-    'nameGiven': 'str',
-    'nameNick': 'str',
-    'weight': 'int',
-    'height': 'int',
-    'bats': 'str',
-    'throws': 'str',
-    'debut': 'str',
-    'finalGame': 'str',
-    'college': 'str',
-    'lahman40ID': 'str',
-    'lahman45ID': 'str',
-    'retroID': 'str',
-    'holtzID': 'str',
-    'bbrefID': 'str'
-    }  
+        'managerID': 'str',
+        'yearID': 'int',
+        'teamID': 'str',
+        'lgID': 'str',
+        'inseason': 'int',
+        'G': 'int',
+        'W': 'int',
+        'L': 'int',
+        'rank_': 'int',
+        'plyrMgr': 'str'
+    }
 
     def __init__(self):
         self.app = app
@@ -53,11 +30,14 @@ class Managers:
             select_query += ' FROM managers WHERE '
             
             conditions = []
+
+            print(queries)
+            
             for k,v in queries.items():
                 if v == 'None' or v == None:
                     continue
                 if self.COLUMNS[k] == 'int':
-                    conditions.append("managers." + k + ' = ' + v)
+                    conditions.append("managers." + k + ' = ' + str(v))
                 elif self.COLUMNS[k] == 'str':
                     conditions.append("managers." + k + ' = \'' + v + '\'')
             select_query += " AND ".join(conditions)
@@ -77,17 +57,21 @@ class Managers:
             print(select_query)
             cursor.execute(select_query)
             results = cursor.fetchall()
+
+            #print(results)
             db.commit()
             
         except dbapi.Error as err:
             db.rollback()
             results = []
+
         finally:
             cursor.close()
             db.close()
+
         return results
     
-    def update_managers(self, key, new_data):
+    def update_managers(self, oldyearID, oldteamID, oldinseason, new_data):
         try:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
@@ -106,7 +90,7 @@ class Managers:
                 elif self.COLUMNS[k] == 'str':
                     new_values.append("managers." + k + ' = \'' + v + '\'')
             update_query += ", ".join(new_values)
-            update_query += ' WHERE managers.lahmanID = ' + key + ";"
+            update_query += ' WHERE managers.yearID = ' + str(oldyearID) + ' AND managers.teamID = \'' + oldteamID + '\' AND managers.inseason = ' + str(oldinseason) + ';'
 
 
             print()
@@ -114,22 +98,28 @@ class Managers:
             cursor.execute(update_query)
             results = cursor.fetchall()
             db.commit()
+            successFlag = True
             
         except dbapi.Error as err:
             db.rollback()
             results = []
+            successFlag = False
+
         finally:
             cursor.close()
             db.close()
-        return results
+        return results, successFlag
         
-
-    def delete_managers(self, key):
+    def delete_managers(self, yearID, teamID, inseason):
         try:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
-
-            delete_query = 'DELETE FROM managers WHERE managers.lahmanID = ' + key + ';'
+            print(yearID)
+            print(teamID)
+            print(inseason)
+            if yearID != None:
+                delete_query = 'DELETE FROM managers WHERE managers.yearID = ' + str(yearID) + ' AND managers.teamID = \'' + teamID + '\' AND managers.inseason = ' + str(inseason) + ';'
+            
             print()
             print(delete_query)
             cursor.execute(delete_query)
@@ -149,10 +139,11 @@ class Managers:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
 
-            managers = app.config['PLAYERS']
+            managers = app.config['MANAGERS']
             
             insert_query = 'INSERT INTO managers ('
             
+
             insert_query += ", ".join(managers.COLUMNS.keys())
                                 #.join([column_name for column_name in managers.COLUMNS.keys()
                                        #if column_name != 'lahmanID']) #primary key
@@ -161,8 +152,6 @@ class Managers:
             
             values = []
             for k,v in managers.COLUMNS.items():
-                #if(k == 'lahmanID'): #primary key
-                    #continue
 
                 if(k not in new_data.keys()):
                     values.append("NULL")
