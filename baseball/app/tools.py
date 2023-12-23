@@ -1,4 +1,5 @@
 from werkzeug.routing import BaseConverter
+from flask import current_app
 
 class RowListConverter(BaseConverter):
     def __init__(self, url_map, randomify=False):
@@ -32,4 +33,15 @@ def list2dict(query_list, header):
     for i in range(len(header)):
         query_dict.update({header[i] : query_list[i]})
     return query_dict
+
+
+def getURLQuery(query, table):
+    url_query = {}
+    for k, v in query.items():
+        if k in current_app.config[table].COLUMNS.keys():
+            if v == 'None' or v == None or v == '':
+                continue
+            
+            url_query[k] = v
+    return url_query
 

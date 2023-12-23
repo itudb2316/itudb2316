@@ -1,12 +1,7 @@
 import mysql.connector as dbapi
 from flask import current_app as app
-from app.tools import list2dict 
 
 class Fielding:
-    HEADER = ['playerID', 'yearID', 'stint', 'teamID', 'lgID', 'pos', 
-              'g', 'gs', 'innOuts', 'po', 'a', 'e', 'dp']
-    COL_TYPES = ['str', 'int', 'int', 'str', 'str', 'str', 'int', 
-                 'int', 'int', 'int', 'int', 'int', 'int']
     COLUMNS = {
         'playerID' : 'str',
         'yearID' : 'int',
@@ -21,6 +16,12 @@ class Fielding:
         'a' : 'int',
         'e' : 'int',
         'dp' : 'int',
+    }
+    keyvalues = {
+        'kplayerID' : '',
+        'kyearID' : 0,
+        'kstint' : 0,
+        'kpos' : ''
     }
     
     def __init__(self):
@@ -66,29 +67,27 @@ class Fielding:
             cursor.close()
             db.close()
     
-    def update_fielding(self, transmit, row):
+    def update_fielding(self, new_data):
         try:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
-            data = list2dict(row, self.HEADER)
             update_query = 'UPDATE fielding SET '
-            for i in range(len(self.HEADER)):
-                if data[self.HEADER[i]] == 'None':
-                    update_query += self.HEADER[i] + ' = NULL AND '
-                elif self.COL_TYPES[i] == 'int':
-                    update_query += self.HEADER[i] + ' = ' + data[self.HEADER[i]] + ' , '
-                elif self.COL_TYPES[i] == 'str':
-                    update_query += self.HEADER[i] + ' = \'' + data[self.HEADER[i]] + '\' , '
-            update_query = update_query.removesuffix(' , ')
-            update_query += ' WHERE '
-            for i in range(len(self.HEADER)):
-                if transmit[i] == 'None':
-                    update_query += self.HEADER[i] + ' IS NULL AND '
-                elif self.COL_TYPES[i] == 'int':
-                    update_query += self.HEADER[i] + ' = ' + transmit[i] + ' AND '
-                elif self.COL_TYPES[i] == 'str':
-                    update_query += self.HEADER[i] + ' = \'' + transmit[i] + '\' AND '
-            update_query = update_query.removesuffix(' AND ')
+            print("NEW_DATA", new_data)
+            
+            new_values = []
+            for k, v in new_data.items():
+                if '\'' in v:
+                    v = v.replace('\'', '\\\'')
+                if v == 'None' or v == None:
+                    new_values.append("fielding." + k + ' = NULL')
+                elif self.COLUMNS[k] == 'int':
+                    new_values.append("fielding." + k + ' = ' + v)
+                elif self.COLUMNS[k] == 'str':
+                    new_values.append("fielding." + k + ' = \'' + v + '\'')
+            update_query += ", ".join(new_values)
+            update_query += f' WHERE playerID = \'{self.keyvalues["kplayerID"]}\' AND \
+                             yearID = {self.keyvalues["kyearID"]} AND stint = {self.keyvalues["kstint"]} AND \
+                             pos = \'{self.keyvalues["kpos"]}\';'
             print()
             print(update_query)
             cursor.execute(update_query)
@@ -102,21 +101,14 @@ class Fielding:
             db.close()
             return False
 
-    def delete_fielding(self, row):
+    def delete_fielding(self):
         try:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
-            data = list2dict(row, self.HEADER)
-            delete_query = 'DELETE FROM fielding WHERE '
-            for i in range(len(self.HEADER)):
-                if data[self.HEADER[i]] == 'None':
-                    condition = self.HEADER[i] + ' IS NULL AND '
-                elif self.COL_TYPES[i] == 'int':
-                    condition = self.HEADER[i] + ' = ' + data[self.HEADER[i]] + ' AND '
-                elif self.COL_TYPES[i] == 'str':
-                    condition = self.HEADER[i] + ' = \'' + data[self.HEADER[i]] + '\' AND '
-                delete_query += condition
-            delete_query = delete_query.removesuffix(' AND ')
+
+            delete_query = f'DELETE FROM fielding WHERE playerID = \'{self.keyvalues["kplayerID"]}\' AND \
+                             yearID = {self.keyvalues["kyearID"]} AND stint = {self.keyvalues["kstint"]} AND \
+                             pos = \'{self.keyvalues["kpos"]}\';'
             print()
             print(delete_query)
             cursor.execute(delete_query)
@@ -130,25 +122,30 @@ class Fielding:
             db.close()
             return False
 
-    def insert_fielding(self, row):
+    def insert_fielding(self, new_data):
         try:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
-            data = list2dict(row, self.HEADER)
             insert_query = 'INSERT INTO fielding ('
-            for i in self.HEADER:
-                insert_query += i + ', '
-            insert_query = insert_query.removesuffix(', ')
+            insert_query += ", ".join(self.COLUMNS.keys())
             insert_query += ') VALUES ('
-            for i in range(len(self.HEADER)):
-                if data[self.HEADER[i]] == 'None':
-                    insert_query += 'NULL'
-                elif self.COL_TYPES[i] == 'int':
-                    insert_query +=  data[self.HEADER[i]] + ', '
-                elif self.COL_TYPES[i] == 'str':
-                    insert_query += '\'' + data[self.HEADER[i]] + '\', '
-            insert_query = insert_query.removesuffix(', ')
-            insert_query += ')'
+            values = []
+            for k,v in self.COLUMNS.items():
+                if(k not in new_data.keys()):
+                    values.append("NULL")
+                    continue
+                value = new_data[k]
+                if value == 'None' or value == None or value == '':
+                    values.append("NULL")
+                    continue
+                if '\'' in value:
+                    value = value.replace('\'', '\\\'')
+                if v == 'int':
+                    values.append(value)
+                elif v == 'str':
+                    values.append('\'' + value + '\'')
+            insert_query += ", ".join(values)
+            insert_query += ');'
             print()
             print(insert_query)
             cursor.execute(insert_query)
@@ -161,27 +158,3 @@ class Fielding:
             cursor.close()
             db.close()
             return False
-
-"""
-class Demo:
-    def __init__(self, row):
-        self.data = list2dict(row, self.HEADER)
-
-    def insert_fielding(self):
-        insert_query = 'INSERT INTO fielding ('
-        for i in self.HEADER:
-            insert_query += i + ', '
-        insert_query = insert_query.removesuffix(', ')
-        insert_query += ') VALUES ('
-        for i in range(len(self.HEADER)):
-            if self.data[self.HEADER[i]] == 'None':
-                insert_query += 'NULL, '
-            elif self.COL_TYPES[i] == 'int':
-                insert_query +=  self.data[self.HEADER[i]] + ', '
-            elif self.COL_TYPES[i] == 'str':
-                insert_query += '\'' + self.data[self.HEADER[i]] + '\', '
-        insert_query = insert_query.removesuffix(', ')
-        insert_query += ')'
-        print()
-        print(insert_query)
-"""

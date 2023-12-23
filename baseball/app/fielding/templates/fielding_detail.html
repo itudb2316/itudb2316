@@ -3,17 +3,11 @@
 <h1>Fielding Detail Page</h1>
 <article class="media content-section">
     <div class="media-body">
-        <!--
-        <div class="article-metadata">
-            <a class="mr-2" href="#">Viewing player: {{ result.fname }} {{ result.lname }}</a>
-        </div>
-        <h2><a class="article-title" href="#">{{ result.fname }} {{ result.lname }}</a></h2>
-        -->
         <ul class="article-content list-group">
             <div class="btn-group" role="group" aria-label="Basic example">
-                <a href="{{ url_for('fielding.fielding_update_search', transmit=result) }}"
+                <a href="{{ url_for('fielding.fielding_update_search', kplayerID=result[0], kyearID=result[1], kstint=result[2], kpos=result[5]) }}"
                     class="btn btn-secondary">Update</a>
-                <a href="{{ url_for('fielding.fielding_delete', query_list=result) }}"
+                <a href="{{ url_for('fielding.fielding_delete', kplayerID=result[0], kyearID=result[1], kstint=result[2], kpos=result[5]) }}"
                     class="btn btn-secondary">Delete</a>
             </div>
             {% for col in result %}

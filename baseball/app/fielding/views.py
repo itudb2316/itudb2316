@@ -1,31 +1,7 @@
 from flask import current_app, render_template, request, redirect, url_for, flash
 from . import fielding_blueprint as app
 from .search import FieldingSearchForm
-from app.tools import paginate
-
-def getURLQuery(query):
-    url_query = {}
-    for k, v in query.items():
-        if k in current_app.config['FIELDING'].COLUMNS.keys():
-            if v == 'None' or v == None or v == '':
-                continue
-            
-            url_query[k] = v
-    return url_query
-
-def query_fill(form, table):
-    query = []
-    for i, (k, _) in enumerate(form.__dict__['_fields'].items()):
-        if i < len(table.HEADER):
-            query.append(form.__dict__['_fields'][k].data)
-    for i in range(len(query)):
-        if type(query[i]) == str:
-            if query[i] == '':
-                query[i] = 'None'
-        elif type(query[i]) == int:
-            if query[i] < 0:
-                query[i] = 'None'
-    return query
+from app.tools import paginate, getURLQuery
 
 @app.route('/fielding/search', methods=["GET", "POST"])
 def fielding_search():
@@ -36,7 +12,7 @@ def fielding_search():
 
         print(query_params)
         #remove empty fields and non-column fields and None values
-        query_params = getURLQuery(query_params)
+        query_params = getURLQuery(query_params, "FIELDING")
         print(query_params)
         return redirect(url_for('fielding.fielding_info', **query_params))
     return render_template('fielding.html', form=form, purpose='Search')
@@ -48,7 +24,7 @@ def fielding_info():
     order = request.args.get('order', None, type=str)
 
     fielding = current_app.config['FIELDING']
-    query = getURLQuery(query)  # Filter query dictionary to include only column names
+    query = getURLQuery(query, "FIELDING")  # Filter query dictionary to include only column names
     results = fielding.view_fielding(query, sort_by, order)
 
     page = request.args.get('page', 1, type=int)
@@ -75,35 +51,52 @@ def fielding_detail():
         return redirect(url_for('fielding.fielding_search'))
     return render_template('fielding_detail.html', result=results[0], header=list(current_app.config['FIELDING'].COLUMNS.keys()))
 
-@app.route('/fielding/update/<row_list:transmit>', methods=["GET", "POST"])
-@app.route('/fielding/update/<row_list:transmit>/', methods=["GET", "POST"])
-def fielding_update_search(transmit):
+@app.route('/fielding/update_form', methods=["GET", "POST"])
+def fielding_update_search():
     form = FieldingSearchForm()
+    fielding = current_app.config['FIELDING']
+
+    for key, _ in fielding.keyvalues.items():
+        fielding.keyvalues[key] = request.args.get(key, None, type=str)
+    query = {}
+    for key, value in fielding.keyvalues.items():
+        query[key.lstrip('k')] = value
+    field = fielding.view_fielding(query)[0]
+
     if request.method == 'GET':
         for i, (k, _) in enumerate(form.__dict__['_fields'].items()):
-            if i < len(current_app.config['FIELDING'].HEADER):
-                form.__dict__['_fields'][k].data = transmit[i]
+            if i < len(fielding.COLUMNS.keys()):
+                form.__dict__['_fields'][k].data = field[i]
+
     if request.method == 'POST' and form.validate_on_submit():
-        query = query_fill(form, current_app.config['FIELDING'])
-        return redirect(url_for('fielding.fielding_update', query_list=query, transmit=transmit))
+        queries = request.form.to_dict()
+        queries.pop('csrf_token')
+        print("QUERY_STRING", queries)
+        return redirect(url_for('fielding.fielding_update', **fielding.keyvalues, **queries))
     return render_template('fielding.html', form=form, purpose='Update')
 
-@app.route('/fielding/<row_list:query_list>/update/<row_list:transmit>')
-@app.route('/fielding/<row_list:query_list>/update/<row_list:transmit>/')
-def fielding_update(query_list, transmit):
+@app.route('/fielding/update', methods=["GET", "POST"])
+def fielding_update():
     fielding = current_app.config['FIELDING']
-    db_response = fielding.update_fielding(transmit, query_list)
+    queries = getURLQuery(request.args.to_dict(), "FIELDING")
+
+    for key, _ in fielding.keyvalues.items():
+        fielding.keyvalues[key] = request.args.get(key, None, type=str)
+    db_response = fielding.update_fielding(queries)
+
     if db_response == True:
         flash(f'Successfully updated!', 'success')
         return render_template('home.html')
     else:
         return redirect(url_for('home.error', message="Update error!"))
 
-@app.route('/fielding/<row_list:query_list>/delete')
-@app.route('/fielding/<row_list:query_list>/delete/')
-def fielding_delete(query_list):
+@app.route('/fielding/delete')
+def fielding_delete():
     fielding = current_app.config['FIELDING']
-    db_response = fielding.delete_fielding(query_list)
+
+    for key, _ in fielding.keyvalues.items():
+        fielding.keyvalues[key] = request.args.get(key, None, type=str)
+    db_response = fielding.delete_fielding()
 
     if db_response == True:
         flash(f'Successfully deleted!', 'warning')
@@ -111,20 +104,19 @@ def fielding_delete(query_list):
     else:
         return redirect(url_for('home.error', message="Deletion error!"))
 
-@app.route('/fielding/insert', methods=["GET", "POST"])
-@app.route('/fielding/insert/', methods=["GET", "POST"])
+@app.route('/fielding/insert_form', methods=["GET", "POST"])
 def fielding_insert_search():
     form = FieldingSearchForm()
     if request.method == 'POST' and form.validate_on_submit():
-        query = query_fill(form, current_app.config['FIELDING'])
-        return redirect(url_for('fielding.fielding_insert', query_list=query))
+        queries = request.form.to_dict()
+        getURLQuery(queries, "FIELDING")
+        return redirect(url_for('fielding.fielding_insert', **queries))
     return render_template('fielding.html', form=form, purpose='Insertion')
 
-@app.route('/fielding/<row_list:query_list>/insert')
-@app.route('/fielding/<row_list:query_list>/insert/')
-def fielding_insert(query_list):
+@app.route('/fielding/insert')
+def fielding_insert():
     fielding = current_app.config['FIELDING']
-    db_response = fielding.insert_fielding(query_list)
+    db_response = fielding.insert_fielding(request.args.to_dict())
 
     if db_response == True:
         flash(f'Successfully inserted!', 'success')

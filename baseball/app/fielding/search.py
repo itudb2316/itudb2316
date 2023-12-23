@@ -15,5 +15,5 @@ class FieldingSearchForm(FlaskForm):
     po = IntegerField('Putouts', validators=[validators.Optional()], default=None, render_kw={'placeholder': 'Enter the number of putouts'})
     a = IntegerField('Assists', validators=[validators.Optional()], default=None, render_kw={'placeholder': 'Enter the number of assists'})
     e = IntegerField('Errors', validators=[validators.Optional()], default=None, render_kw={'placeholder': 'Enter the number of errors'})
-    dp = IntegerField('Double Plays', validators=[validators.Optional()], default=None, render_kw={'placeholder': 'Enter the number of double plays'})
-    submit = SubmitField('Search', render_kw={'class': 'btn btn-outline-secondary'})
+    dp = IntegerField('Double Plays', validators=[validators.Optional()], default=None, render_kw={'placeholder': 'Enter the number of double plays'})   
+    submit = SubmitField('Submit', render_kw={'class': 'btn btn-outline-secondary'})
