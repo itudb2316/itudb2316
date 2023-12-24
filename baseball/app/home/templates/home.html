@@ -1,6 +1,17 @@
 {% extends "layout.html" %}
+
 {% block content %}
 <h1>BaseballMarkt</h1>
+
+<!-- Welcome Message -->
+<div class="jumbotron">
+    <h1 class="display-4">Welcome to Baseball-Markt!</h1>
+    <p class="lead">Explore the world of baseball with our comprehensive database. Discover players, teams, managers, and more.</p>
+    <hr class="my-4">
+    <p>Stay updated with the latest news, player performances, and exciting moments in the world of baseball.</p>
+    <a class="btn btn-primary btn-lg" href="#" role="button">Learn more</a>
+</div>
+
 {% for post in posts %}
 <article class="media content-section">
     <div class="media-body">
