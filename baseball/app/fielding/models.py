@@ -2,33 +2,6 @@ import mysql.connector as dbapi
 from flask import current_app as app
 
 class Fielding:
-    COLUMNS = {
-        'playerID' : 'str',
-        'yearID' : 'int',
-        'stint' : 'int',
-        'teamID' : 'str',
-        'lgID' : 'str',
-        'pos' : 'str',
-        'g' : 'int',
-        'gs' : 'int',
-        'innOuts' : 'int',
-        'po' : 'int',
-        'a' : 'int',
-        'e' : 'int',
-        'dp' : 'int',
-        'pb' : 'int',
-        'wp' : 'int',
-        'sb' : 'int',
-        'cs' : 'int',
-        'zr' : 'int'
-    }
-    keyvalues = {
-        'kplayerID' : '',
-        'kyearID' : 0,
-        'kstint' : 0,
-        'kpos' : ''
-    }
-
     INFO = {
         "fielding" : {
             'fm.playerID' : 'Player ID',
@@ -198,7 +171,7 @@ class Fielding:
                     elif self.TABLES["fielding"]["main_keys"][k.split('_')[1]] == 'int':
                         new_m_values.append("fm." + k.split('_')[1] + ' = ' + v)
                         new_s_values.append("fs." + k.split('_')[1] + ' = ' + v)
-                    elif self.TABLES["fielding"]["main_keys"][k.split('_')[1]]:
+                    elif self.TABLES["fielding"]["main_keys"][k.split('_')[1]] == 'str':
                         new_m_values.append("fm." + k.split('_')[1] + ' = \'' + v + '\'')
                         new_s_values.append("fs." + k.split('_')[1] + ' = \'' + v + '\'')
                 elif k.split('_')[0] == 'mk':
@@ -208,7 +181,7 @@ class Fielding:
                         new_m_values.append("fm." + k.split('_')[1] + ' = NULL')
                     elif self.TABLES["fielding"]["main_keys"][k.split('_')[1]] == 'int':
                         new_m_values.append("fm." + k.split('_')[1] + ' = ' + v)
-                    elif self.TABLES["fielding"]["main_keys"][k.split('_')[1]]:
+                    elif self.TABLES["fielding"]["main_keys"][k.split('_')[1]] == 'str':
                         new_m_values.append("fm." + k.split('_')[1] + ' = \'' + v + '\'')
                 elif k.split('_')[0] == 'mc':
                     if '\'' in v:
@@ -217,7 +190,7 @@ class Fielding:
                         new_m_values.append("fm." + k.split('_')[1] + ' = NULL')
                     elif self.TABLES["fielding"]["main_cols"][k.split('_')[1]] == 'int':
                         new_m_values.append("fm." + k.split('_')[1] + ' = ' + v)
-                    elif self.TABLES["fielding"]["main_cols"][k.split('_')[1]]:
+                    elif self.TABLES["fielding"]["main_cols"][k.split('_')[1]] == 'str':
                         new_m_values.append("fm." + k.split('_')[1] + ' = \'' + v + '\'')
 
             update_s_query += ", ".join(new_s_values)
@@ -231,7 +204,6 @@ class Fielding:
             print(update_s_query)
             print(update_m_query)
             cursor.execute(update_s_query)
-            db.commit()
             cursor.execute(update_m_query)
             db.commit()
             cursor.close()
@@ -243,17 +215,37 @@ class Fielding:
             db.close()
             return False
 
-    def delete_fielding(self):
+    def delete_fielding(self, queries):
         try:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
 
-            delete_query = f'DELETE FROM fielding WHERE playerID = \'{self.keyvalues["kplayerID"]}\' AND \
-                             yearID = {self.keyvalues["kyearID"]} AND stint = {self.keyvalues["kstint"]} AND \
-                             pos = \'{self.keyvalues["kpos"]}\';'
+            delete_m_query = f'DELETE FROM fielding WHERE playerID = \'{queries["mksk_playerID"]}\' AND '
+            delete_m_query += f'yearID = {queries["mksk_yearID"]} AND '
+            delete_m_query += f'stint = {queries["mksk_stint"]} AND '
+            delete_m_query += f'pos = \'{queries["mk_pos"]}\';'
+
             print()
-            print(delete_query)
-            cursor.execute(delete_query)
+            print(delete_m_query)
+            cursor.execute(delete_m_query)
+
+            count_query = f'SELECT COUNT(*) FROM fielding WHERE playerID = \'{queries["mksk_playerID"]}\' AND '
+            count_query += f'yearID = {queries["mksk_yearID"]} AND '
+            count_query += f'stint = {queries["mksk_stint"]} AND '
+            count_query += f'pos = \'{queries["mk_pos"]}\';'
+
+            cursor.execute(count_query)
+            num = int(cursor.fetchone()[0])
+            print(count_query)
+            print(num)
+
+            if num == 0:
+                delete_s_query = f'DELETE FROM fielding_sub WHERE playerID = \'{queries["mksk_playerID"]}\' AND '
+                delete_s_query += f'yearID = {queries["mksk_yearID"]} AND '
+                delete_s_query += f'stint = {queries["mksk_stint"]};'
+                print(delete_s_query)
+                cursor.execute(delete_s_query)
+            
             db.commit()
             cursor.close()
             db.close()
@@ -268,29 +260,65 @@ class Fielding:
         try:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
-            insert_query = 'INSERT INTO fielding ('
-            insert_query += ", ".join(self.COLUMNS.keys())
-            insert_query += ') VALUES ('
-            values = []
-            for k,v in self.COLUMNS.items():
-                if(k not in new_data.keys()):
-                    values.append("NULL")
-                    continue
-                value = new_data[k]
-                if value == 'None' or value == None or value == '':
-                    values.append("NULL")
-                    continue
-                if '\'' in value:
-                    value = value.replace('\'', '\\\'')
-                if v == 'int':
-                    values.append(value)
-                elif v == 'str':
-                    values.append('\'' + value + '\'')
-            insert_query += ", ".join(values)
-            insert_query += ');'
-            print()
-            print(insert_query)
-            cursor.execute(insert_query)
+            m_cols = []
+            s_cols = []
+            m_vals = []
+            s_vals = []
+            for k, v in new_data.items():
+                if k.split('_')[0] == 'mksk':
+                    m_cols.append(k.split('_')[1])
+                    s_cols.append(k.split('_')[1])
+                    if v == 'None' or v == None or v == '':
+                        m_vals.append('NULL')
+                        s_vals.append('NULL')
+                    elif self.TABLES["fielding"]["main_keys"][k.split('_')[1]] == 'int':
+                        m_vals.append(v)
+                        s_vals.append(v)
+                    elif self.TABLES["fielding"]["main_keys"][k.split('_')[1]] == 'str':
+                        m_vals.append('\'' + v + '\'')
+                        s_vals.append('\'' + v + '\'')
+                elif k.split('_')[0] == 'mk':
+                    m_cols.append(k.split('_')[1])
+                    if v == 'None' or v == None or v == '':
+                        m_vals.append('NULL')
+                    elif self.TABLES["fielding"]["main_keys"][k.split('_')[1]] == 'int':
+                        m_vals.append(v)
+                    elif self.TABLES["fielding"]["main_keys"][k.split('_')[1]] == 'str':
+                        m_vals.append('\'' + v + '\'')
+                elif k.split('_')[0] == 'mc':
+                    m_cols.append(k.split('_')[1])
+                    if v == 'None' or v == None or v == '':
+                        m_vals.append('NULL')
+                    elif self.TABLES["fielding"]["main_cols"][k.split('_')[1]] == 'int':
+                        m_vals.append(v)
+                    elif self.TABLES["fielding"]["main_cols"][k.split('_')[1]] == 'str':
+                        m_vals.append('\'' + v + '\'')
+                elif k.split('_')[0] == 'sc':
+                    s_cols.append(k.split('_')[1])
+                    if v == 'None' or v == None or v == '':
+                        s_vals.append('NULL')
+                    elif self.TABLES["fielding"]["sub_cols"][k.split('_')[1]] == 'int':
+                        s_vals.append(v)
+                    elif self.TABLES["fielding"]["sub_cols"][k.split('_')[1]] == 'str':
+                        s_vals.append('\'' + v + '\'')
+                
+
+            insert_m_query = 'INSERT INTO fielding ('
+            insert_m_query += ", ".join(m_cols)
+            insert_m_query += ') VALUES ('
+            insert_m_query += ", ".join(m_vals)
+            insert_m_query += ');'
+            cursor.execute(insert_m_query)
+
+            insert_s_query = 'INSERT INTO fielding_sub ('
+            insert_s_query += ", ".join(s_cols)
+            insert_s_query += ') VALUES ('
+            insert_s_query += ", ".join(s_vals)
+            insert_s_query += ');'
+            cursor.execute(insert_s_query)
+
+            print(insert_m_query)
+            print(insert_s_query)
             db.commit()
             cursor.close()
             db.close()

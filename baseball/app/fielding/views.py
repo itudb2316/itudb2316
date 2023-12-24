@@ -103,9 +103,9 @@ def fielding_update():
 def fielding_delete():
     fielding = current_app.config['FIELDING']
 
-    for key, _ in fielding.keyvalues.items():
-        fielding.keyvalues[key] = request.args.get(key, None, type=str)
-    db_response = fielding.delete_fielding()
+    queries = request.args.to_dict()
+    print(queries)
+    db_response = fielding.delete_fielding(queries)
 
     if db_response == True:
         flash(f'Successfully deleted!', 'warning')
@@ -118,6 +118,8 @@ def fielding_insert_search():
     form = FieldingSearchForm()
     if request.method == 'POST' and form.validate_on_submit():
         queries = request.form.to_dict()
+        queries.pop('csrf_token')
+        queries.pop('submit')
         getURLQuery(queries, "FIELDING")
         return redirect(url_for('fielding.fielding_insert', **queries))
     return render_template('fielding.html', form=form, purpose='Insertion')
@@ -125,7 +127,8 @@ def fielding_insert_search():
 @app.route('/fielding/insert')
 def fielding_insert():
     fielding = current_app.config['FIELDING']
-    db_response = fielding.insert_fielding(request.args.to_dict())
+    queries = request.args.to_dict()
+    db_response = fielding.insert_fielding(queries)
 
     if db_response == True:
         flash(f'Successfully inserted!', 'success')
