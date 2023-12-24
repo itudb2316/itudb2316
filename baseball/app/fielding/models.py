@@ -16,11 +16,6 @@ class Fielding:
         'a' : 'int',
         'e' : 'int',
         'dp' : 'int',
-        'pb' : 'int',
-        'wp' : 'int',
-        'sb' : 'int',
-        'cs' : 'int',
-        'zr' : 'int'
     }
     keyvalues = {
         'kplayerID' : '',

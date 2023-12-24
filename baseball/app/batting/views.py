@@ -106,26 +106,31 @@ def batting_update_search():
     key3 = request.args.get('stint', None, type=str)
     query = {'playerID': key1,
              'yearID': key2,
-             'stint': key3}
+             'teamID': key3}
     batting_1 = battings.view_batting(query)[0]
+    batting_2 = battings.view_batting(query)[1]
+    batting_3 = battings.view_batting(query)[2]
     if request.method == 'GET':
         for i, (k, _) in enumerate(form.__dict__['_fields'].items()):
             if i < len(current_app.config['BATTING'].header_type.keys()):
                 form.__dict__['_fields'][k].data = batting_1[i]
+                form.__dict__['_fields'][k].data = batting_2[i]
+                form.__dict__['_fields'][k].data = batting_3[i]
     
     
     if request.method == 'POST' and form.validate_on_submit():
         query_string = "&".join(f"{list(current_app.config['BATTING'].header_type.keys())[i]}={form.__dict__['_fields'][k].data}" for i, (k, _) in enumerate(form.__dict__['_fields'].items()) if form.__dict__['_fields'][k].data != '' and i < len(current_app.config['BATTING'].header_type.keys() ))
-        print("QUERY STRING", query_string)
-        return redirect(url_for('batting.batting_update') + f'?key1={key1}&key2={key2}&key3={key3}&{query_string}')
-    return render_template('batting.html', form = form, purpose = 'Update')
+    #Change here for the URL path.
+    
+    print("QUERY STRING", query_string)
+    return redirect(url_for('batting.batting_update') + f'?key1={key1}&key2={key2}&key3={key3}')
 
-@app.route('/batting/update', methods=["GET", "POST"]) #To be fixed.
-def batting_update():
+@app.route('/batting/update') #To be fixed.
+def batting_update(query_list, transmit):
     battings = current_app.config['BATTING']
-    key1 = request.args.get('key1', None, type=str)
-    key2 = request.args.get('key2', None, type=str)
-    key3 = request.args.get('key3', None, type=str)
+    key1 = request.args.get('playerID', None, type=str)
+    key2 = request.args.get('yearID', None, type=str)
+    key3 = request.args.get('stint', None, type=str)
     keys = [key1, key2, key3]
     queries = get_url_query(request.args.to_dict())
     battings.update_batting(keys, queries)
@@ -136,10 +141,7 @@ def batting_update():
 @app.route('/batting/delete')
 def batting_delete():
     batting = current_app.config['BATTING']
-    key1 = request.args.get('playerID', None, type=str)
-    key2 = request.args.get('yearID', None, type=str)
-    key3 = request.args.get('stint', None, type=str)
-    keys = [key1, key2, key3]
-    batting.delete_batting(keys)
+    key = request.args.get('key', None, type=str)
+    batting.delete_batting(key)
     flash(f'Successfully deleted!', 'warning')
     return render_template('home.html')

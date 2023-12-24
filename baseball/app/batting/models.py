@@ -118,39 +118,46 @@ class Batting:
             conditions = []
             for k,v in data.items():
                 if v == 'None' or v == None:
-                    conditions.append("batting." + k + '= NULL')
+                    conditions.append("batting." + k + ' NULL')
                 if self.header_type[k] == 'int':
                     conditions.append("batting." + k + ' = ' + v)
                 elif self.header_type[k] == 'str':
                     conditions.append("batting." + k + ' = \'' + v + '\'')
             update_query += ', '.join(conditions)
-            update_query += ' WHERE playerID = \'' + keys[0] + '\' AND yearID = ' + keys[1] + ' AND stint = ' + keys[2]
+            update_query += ' WHERE playerID = ' + keys[0] + ' AND yearID = ' + keys[1] + 'AND teamID = ' + keys[2] + 'AND lgID = ' + keys[3]
             print()
             print(update_query)
             cursor.execute(update_query)
             result = cursor.fetchall()
             db.commit()
+            return result
         except dbapi.Error as err:
             db.rollback()
-            result = []
         finally:
             cursor.close()
             db.close()
-        return result
             
-    def delete_batting(self, keys):
+    def delete_batting(self, row):
         try:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
-            delete_query = 'DELETE FROM batting WHERE playerID = \'' + keys[0] + '\' AND yearID = ' + keys[1] + ' AND stint = ' + keys[2]
+            data = list2dict(row, self.header)
+            delete_query = 'DELETE FROM fielding WHERE '
+            for i in range(len(self.header)):
+                if data[self.header[i]] == 'None':
+                    condition = self.header[i] + ' IS NULL AND '
+                elif self.column_types[i] == 'int':
+                    condition = self.header[i] + ' = ' + data[self.header[i]] + ' AND '
+                elif self.column_types[i] == 'str':
+                    condition = self.header[i] + ' = \'' + data[self.header[i]] + '\' AND '
+                delete_query += condition
+            delete_query = delete_query.removesuffix(' AND ')
             print()
             print(delete_query)
             cursor.execute(delete_query)
-            results = cursor.fetchall()
             db.commit()
         except dbapi.Error as err:
             db.rollback()
-            results = []
         finally:
             cursor.close()
             db.close()
