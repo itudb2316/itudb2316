@@ -42,7 +42,7 @@
                                 {% set _ = detail_query.append('None') %}
                             {% endfor %}
                             <a class="badge badge-primary"
-                                href="{{ url_for('fielding.fielding_detail', playerID=result[0], yearID=result[1], stint=result[2], pos=result[5]) }}">
+                                href="{{ url_for('fielding.fielding_detail', mksk_playerID=result[0], mksk_yearID=result[1], mksk_stint=result[2], mk_pos=result[3]) }}">
                                 {{ loop.index + (page_info['page'] - 1) * page_info['per_page'] }}
                             </a>
                         </th>

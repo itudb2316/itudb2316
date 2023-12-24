@@ -55,11 +55,12 @@ def fielding_detail():
     fielding = current_app.config['FIELDING']
     query = request.args.to_dict()
     results = fielding.view_fielding(query)
+    print(results[0])
 
     if len(results) == 0:
         flash(f'No results were found! Try again.', 'danger')
         return redirect(url_for('fielding.fielding_search'))
-    return render_template('fielding_detail.html', result=results[0], header=list(current_app.config['FIELDING'].COLUMNS.keys()))
+    return render_template('fielding_detail.html', result=results[0], header=current_app.config['FIELDING'].INFO['fielding'])
 
 @app.route('/fielding/update_form', methods=["GET", "POST"])
 def fielding_update_search():
