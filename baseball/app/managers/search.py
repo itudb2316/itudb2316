@@ -14,7 +14,7 @@ class ManagersSearchForm(FlaskForm):
     L = IntegerField('Losses',validators=[validators.Optional()], default=None, render_kw={'placeholder': 'Enter the number of losses'})
     rank_ = IntegerField('Rank',validators=[validators.Optional()], default=None, render_kw={'placeholder': 'Enter the rank'})
     plyrMgr = StringField('Player Manager', [Length(max=1)], default="", render_kw={'placeholder': 'Enter the player/manager status'})
-    submit = SubmitField('Search', render_kw={'class': 'btn btn-outline-secondary'})
+    submit = SubmitField('Search', render_kw={'class': 'btn btn-outline-primary'})
 
 class ManagersInsertForm(FlaskForm):
     managerID = StringField('Manager ID', [Length(max=10), validators.InputRequired()], default="", render_kw={'placeholder': 'Enter the manager\'s ID (REQUIRED)'})
@@ -27,4 +27,17 @@ class ManagersInsertForm(FlaskForm):
     L = IntegerField('Losses',validators=[validators.Optional()], default=None, render_kw={'placeholder': 'Enter the number of losses'})
     rank_ = IntegerField('Rank',validators=[validators.Optional()], default=None, render_kw={'placeholder': 'Enter the rank'})
     plyrMgr = StringField('Player Manager', [Length(max=1)], default="", render_kw={'placeholder': 'Enter the player/manager status'})
-    submit = SubmitField('Insert', render_kw={'class': 'btn btn-outline-secondary'})
+    submit = SubmitField('Insert', render_kw={'class': 'btn btn-outline-primary'})
+
+class ManagersUpdateForm(FlaskForm):
+    managerID = StringField('Manager ID', [Length(max=10)], default="", render_kw={'placeholder': 'Enter the manager\'s ID'})
+    yearID = IntegerField('Year ID',validators=[validators.Optional()], default=None, render_kw={'placeholder': 'Enter the year ID'})
+    teamID = StringField('Team ID', [Length(max=3)], default="", render_kw={'placeholder': 'Enter the team ID'})
+    lgID = StringField('League ID', [Length(max=2)], default="", render_kw={'placeholder': 'Enter the league ID'})
+    inseason = IntegerField('Inseason',validators=[validators.Optional()], default=None, render_kw={'placeholder': 'Enter the inseason value'})
+    G = IntegerField('Games',validators=[validators.Optional()], default=None, render_kw={'placeholder': 'Enter the number of games'})
+    W = IntegerField('Wins',validators=[validators.Optional()], default=None, render_kw={'placeholder': 'Enter the number of wins'})
+    L = IntegerField('Losses',validators=[validators.Optional()], default=None, render_kw={'placeholder': 'Enter the number of losses'})
+    rank_ = IntegerField('Rank',validators=[validators.Optional()], default=None, render_kw={'placeholder': 'Enter the rank'})
+    plyrMgr = StringField('Player Manager', [Length(max=1)], default="", render_kw={'placeholder': 'Enter the player/manager status'})
+    submit = SubmitField('Update', render_kw={'class': 'btn btn-outline-primary'})

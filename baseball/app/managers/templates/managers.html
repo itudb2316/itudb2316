@@ -1,7 +1,64 @@
 {% extends "layout.html" %}
 {% block content %}
-<h1>Managers {{ purpose|capitalize }} Page</h1>
+<style>
+    .button-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .button-link {
+        display: inline-block;
+        padding: 10px 20px;
+        text-decoration: none;
+        color: #ffffff;
+        background-color: #e74c3c; /* Red color for the button */
+        border: 1px solid #e74c3c;
+        border-radius: 5px;
+        width: 100%;
+        text-align: center;
+        transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+        font-weight: bold; /* Make the text bold for better visibility */
+        font-size: 16px; /* Adjust the font size for better readability */
+    }
+
+    .button-link:hover {
+        background-color: #c0392b; /* Darker shade of red for the hover effect */
+        border: 1px solid #c0392b;
+    }
+
+    .legendary-button-link {
+        display: inline-block;
+        padding: 10px 20px;
+        text-decoration: none;
+        color: #ffffff;
+        background-color: #ff4081; /* Pink color for the button */
+        border: 1px solid #ff4081;
+        border-radius: 5px;
+        width: 100%;
+        text-align: center;
+        transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+        font-weight: bold; /* Make the text bold for better visibility */
+        font-size: 16px; /* Adjust the font size for better readability */
+    }
+
+    .legendary-button-link:hover {
+        background-color: #d81b60; /* Darker shade of pink for the hover effect */
+        border: 1px solid #d81b60;
+    }
+</style>
+
+<h1>Managers {{ purpose|capitalize }} </h1>
 <div class="content-section">
+
+    <div class="button-container">
+        <a class="button-link" href="{{ url_for('managers.managers_champions') }}">Championship History (Last 20 Years)</a>
+    </div>
+
+    <div class="button-container">
+        <a class="legendary-button-link" href="{{ url_for('managers.managers_legends') }}">Most 25 Legendary Managers (Based on Experience)</a>
+    </div>
+
     <form method="POST" action="" novalidate>
         {{ form.hidden_tag() }}
         {% for k, _ in form.__dict__['_fields'].items() %}

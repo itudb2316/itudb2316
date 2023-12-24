@@ -39,3 +39,11 @@ Week 7 (18-24 Dec):
   - SQL queries of Teams table is designed and implemented.
   - Individually, back-end models which interact with database via SQL queries and commit changes are implemented.
   - models.py file is committed, now Teams table is functional with all CRUD operations.
+
+  - UpdateForm is added to increase user-experience performance.
+  - Stored Function: managers_winner added into Manager Details page.
+  - Stored Procedure 1: managers_champions added into Manager Searching page.
+  - Stored Procedure 2: managers_legends added into Manager Searching page.
+  - HTML templates for managers_update, managers_winner, managers_legends, managers_champions are implemented and added.
+  - Required buttons are added.
+  - Aesthetic appearance of the 'managers' section is satisfied with all adjustments to increase user-experience.

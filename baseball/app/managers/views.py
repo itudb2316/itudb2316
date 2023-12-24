@@ -1,6 +1,6 @@
 from flask import current_app, render_template, request, redirect, url_for, flash
 from . import managers_blueprint as app
-from .search import ManagersSearchForm, ManagersInsertForm
+from .search import ManagersSearchForm, ManagersInsertForm, ManagersUpdateForm
 from app.tools import paginate
 
 def getURLQuery(query):
@@ -72,7 +72,7 @@ def managers_detail():
 
 @app.route('/managers/update_form', methods=["GET", "POST"])
 def managers_update_search():
-    form = ManagersSearchForm()
+    form = ManagersUpdateForm()
 
     managers = current_app.config['MANAGERS']
     
@@ -101,7 +101,7 @@ def managers_update_search():
         print("QUERY_STRING", query_string)
         # Use yearID instead of key in the redirect function
         return redirect(url_for('managers.managers_update') + f'?oldmanagerID={oldmanagerID}&oldyearID={oldyearID}&oldteamID={oldteamID}&oldinseason={oldinseason}&{query_string}')
-    return render_template('managers.html', form=form, purpose='Update')
+    return render_template('managers_update.html', form=form, purpose='Update')
 
 @app.route('/managers/update')
 def managers_update():
@@ -147,7 +147,7 @@ def managers_insert_search():
                                    if form.__dict__['_fields'][k].data != '' and i < len(managers.COLUMNS.keys() ))
         print("QUERY_STRİNG", query_string)
         return redirect(url_for('managers.managers_insert')+f'?{query_string}')
-    return render_template('managers.html', form=form, purpose='Insertion')
+    return render_template('managers_insert.html', form=form, purpose='Insertion')
 
 @app.route('/managers/insert', methods=["GET", "POST"])
 def managers_insert():
@@ -160,3 +160,28 @@ def managers_insert():
         flash(f'Error ! Try again.', 'danger')
         return redirect(url_for('managers.managers_insert_search'))
     return render_template('managers_detail.html', result=results[0], header=list(current_app.config['MANAGERS'].COLUMNS.keys()))
+
+@app.route('/managers/winner', methods=["GET", "POST"])
+def managers_winner():
+    managers = current_app.config['MANAGERS']
+    queries = getURLQuery(request.args.to_dict())
+
+    results = managers.winner(queries)[0]
+
+    return render_template('managers_winner.html', result=results)
+
+@app.route('/managers/champions', methods=["GET", "POST"])
+def managers_champions():
+    managers = current_app.config['MANAGERS']
+
+    results = managers.champions()
+
+    return render_template('managers_champions.html', result=results)
+
+@app.route('/managers/legends', methods=["GET", "POST"])
+def managers_legends():
+    managers = current_app.config['MANAGERS']
+
+    results = managers.legends()
+
+    return render_template('managers_legends.html', result=results)

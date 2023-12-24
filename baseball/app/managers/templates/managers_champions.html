@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+    /* Add your styles here or keep the existing styles for the layout */
+
+    .result-container {
+        background-color: #f8f9fa; /* Light gray background */
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        margin-top: 40px;
+        text-align: center;
+    }
+
+    .result-heading {
+        font-size: 36px;
+        font-weight: bold;
+        color: #333333;
+        margin-bottom: 20px;
+    }
+
+    .result-text {
+        font-size: 20px;
+        color: #555555;
+        margin-bottom: 15px;
+    }
+
+    .champion-item {
+        font-size: 18px;
+        color: #007bff;
+        margin-bottom: 10px;
+    }
+
+    .result-link {
+        display: inline-block;
+        padding: 15px 30px;
+        text-decoration: none;
+        color: #ffffff;
+        background-color: #28a745; /* Green color for the button */
+        border: 2px solid #28a745;
+        border-radius: 5px;
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+        transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+        cursor: pointer;
+    }
+
+    .result-link:hover {
+        background-color: #218838; /* Darker shade of green for hover effect */
+        border: 2px solid #218838;
+    }
+</style>
+
+<div class="result-container">
+    <h1 class="result-heading">Champions of the Last 20 Years</h1>
+    <p class="result-text">
+        Explore the list of baseball champions from the last two decades. These teams and their victories have left a mark in the history of the game.
+    </p>
+    <ul>
+        {% for champion in result %}
+            <li class="champion-item">
+                Year {{ champion[0] }}: Team {{ champion[1] }}
+            </li>
+        {% endfor %}
+    </ul>
+    <div class="button-container">
+        <a class="btn btn-warning" href="{{ url_for('managers.managers_search') }}">Back to Search</a>
+    </div>
+</div>
+
+{% endblock content %}

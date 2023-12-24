@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+{% block content %}
+<style>
+    /* Add your styles here or keep the existing styles for the layout */
+
+    .result-container {
+        background-color: #f8f9fa; /* Light gray background */
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+    }
+
+    .result-heading {
+        font-size: 24px;
+        font-weight: bold;
+        color: #333333;
+        margin-bottom: 15px;
+    }
+
+    .result-text {
+        font-size: 18px;
+        color: #555555;
+        margin-bottom: 20px;
+    }
+
+    .result-link {
+        display: inline-block;
+        padding: 10px 20px;
+        text-decoration: none;
+        color: #ffffff;
+        background-color: #007bff; /* Blue color for the button */
+        border: 1px solid #007bff;
+        border-radius: 5px;
+        text-align: center;
+        transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+    }
+
+    .result-link:hover {
+        background-color: #0056b3; /* Darker shade of blue for hover effect */
+        border: 1px solid #0056b3;
+    }
+</style>
+
+<div class="result-container">
+    <h1 class="result-heading">Manager's Win Percentage</h1>
+    <p class="result-text">
+        Here, you can see the win percentage of the manager. The win percentage is calculated based on the total number
+        of games and wins recorded in the database for the manager.
+    </p>
+    <p class="result-text">
+        <span style="font-size: 20px; color: #333; font-weight: bold;">The manager with ID "<span style="color: #007bff;">{{ result[0] }}</span>"</span>
+        <span style="font-size: 24px; color: #27ae60; font-weight: bold;">has a win percentage of {{ result[1] }}%.</span>
+    </p>
+    <div class="button-container">
+        <a class="btn btn-warning" href="{{ url_for('managers.managers_search') }}">Back to Search</a>
+    </div>
+</div>
+
+{% endblock content %}

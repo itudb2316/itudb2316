@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Managers {{ purpose|capitalize }} </h1>
+<div class="content-section">
+    <form method="POST" action="" novalidate>
+        {{ form.hidden_tag() }}
+        {% for k, _ in form.__dict__['_fields'].items() %}
+        {% if k != 'submit' and k != 'csrf_token' %}
+        <div class="form-group mt-3">
+            {{ form.__dict__['_fields'][k].label(class="form-control-label") }}
+            {% if form.__dict__['_fields'][k].errors %}
+            {{ form.__dict__['_fields'][k](class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+                {% for error in form.__dict__['_fields'][k].errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% else %}
+            {{ form.__dict__['_fields'][k](class="form-control form-control-lg") }}
+            {% endif %}
+        </div>
+        {% endif %}
+        {% endfor %}
+        <div class="form-group mt-3 mb-3">
+            {{ form.submit() }}
+        </div>
+    </form>
+</div>
+{% endblock content %}

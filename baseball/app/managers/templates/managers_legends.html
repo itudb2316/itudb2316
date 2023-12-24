@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+    /* Add your styles here or keep the existing styles for the layout */
+
+    .legend-container {
+        background-color: #f8f9fa; /* Light gray background */
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        margin-top: 40px;
+        text-align: center;
+    }
+
+    .legend-heading {
+        font-size: 36px;
+        font-weight: bold;
+        color: #333333;
+        margin-bottom: 20px;
+    }
+
+    .legend-item {
+        font-size: 20px;
+        color: #555555;
+        margin-bottom: 15px;
+    }
+
+    .legend-link {
+        display: inline-block;
+        padding: 15px 30px;
+        text-decoration: none;
+        color: #ffffff;
+        background-color: #007bff; /* Blue color for the button */
+        border: 2px solid #007bff;
+        border-radius: 5px;
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+        transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+        cursor: pointer;
+    }
+
+    .legend-link:hover {
+        background-color: #0056b3; /* Darker shade of blue for hover effect */
+        border: 2px solid #0056b3;
+    }
+</style>
+
+<div class="legend-container">
+    <h1 class="legend-heading">Legendary Managers</h1>
+    <p class="legend-item">
+        Explore the list of legendary baseball managers based on their total games managed.
+    </p>
+    <ul>
+        {% for manager in result %}
+            <li class="legend-item">
+                Manager {{ manager[0] }}: Total Games Managed - {{ manager[1] }}
+            </li>
+        {% endfor %}
+    </ul>
+    <div class="button-container">
+        <a class="btn btn-warning" href="{{ url_for('managers.managers_search') }}">Back to Search</a>
+    </div>
+</div>
+
+{% endblock content %}

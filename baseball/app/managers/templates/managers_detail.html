@@ -1,15 +1,44 @@
 {% extends "layout.html" %}
 {% block content %}
-<h1>Managers Detail Page</h1>
+<style>
+    .button-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .button-link {
+        display: inline-block;
+        padding: 10px 20px;
+        text-decoration: none;
+        color: #ffffff;
+        background-color: #2ecc71; /* Choose a shade of green for the button */
+        border: 1px solid #2ecc71;
+        border-radius: 5px;
+        width: 100%;
+        text-align: center;
+        transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+    }
+
+    .button-link:hover {
+        background-color: #27ae60; /* Darker shade of green for the hover effect */
+        border: 1px solid #27ae60;
+    }
+</style>
+
+
+<h1>Manager Information</h1>
 <article class="media content-section">
     <div class="media-body">
-
+        <div class="button-container">
+            <a class="button-link" href="{{ url_for('managers.managers_winner') }}?managerID={{result[0]}}">Fun Facts: How much winner is the manager ?</a>
+        </div>
         <ul class="article-content list-group">
             <div class="btn-group" role="group" aria-label="Basic example">
                 <a href="{{ url_for('managers.managers_update_search')}}?managerID={{result[0]}}&yearID={{result[1]}}&teamID={{result[2]}}&inseason={{result[4]}}"
-                    class="btn btn-secondary">Update</a>
+                    class="btn btn-primary">Update</a>
                     <a href="{{ url_for('managers.managers_delete')}}?managerID={{result[0]}}&yearID={{result[1]}}&teamID={{result[2]}}&inseason={{result[4]}}"
-                    class="btn btn-secondary">Delete</a>
+                    class="btn btn-danger">Delete</a>
             </div>
             {% for col in result %}
             <li class="list-group-item d-flex justify-content-between align-items-center">

@@ -4,7 +4,7 @@
 <article class="media content-section">
     <div class="media-body">
         <input type="checkbox" id="hideCheckbox"> <label for="hideCheckbox">Hide Legend</label>
-        <p id="hideableParagraph" class="hideable">Legend: <br>
+        <p id="hideableParagraph" class="hideable hidden" style="display: none;">Legend: <br>
             yearID:         Year <br>
             lgID:           League <br>
             teamID:         Team <br>
@@ -52,7 +52,8 @@
             PPF:            Three-year park factor for pitchers <br>
             teamIDBR:       Team ID used by Baseball Reference website <br>
             teamIDlahman45: Team ID used in Lahman database version 4.5 <br>
-            teamIDretro:    Team ID used by Retrosheet</p>
+            teamIDretro:    Team ID used by Retrosheet
+        </p>
 
         <ul class="article-content list-group">
             <div class="btn-group" role="group" aria-label="Basic example">
@@ -73,18 +74,17 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-     var hideCheckbox = document.getElementById('hideCheckbox');
-     var hideableParagraph = document.getElementById('hideableParagraph');
- 
-     // Add a change event listener to toggle visibility
-     hideCheckbox.addEventListener('change', function() {
-         // Toggle the visibility by toggling the 'hidden' class
-         hideableParagraph.classList.toggle('hidden', hideCheckbox.checked);
-     });
- });
- 
- </script>
- 
+        var hideCheckbox = document.getElementById('hideCheckbox');
+        var hideableParagraph = document.getElementById('hideableParagraph');
+
+        // Add a change event listener to toggle visibility
+        hideCheckbox.addEventListener('change', function() {
+            // Toggle the visibility by toggling the 'hidden' class
+            hideableParagraph.style.display = hideCheckbox.checked ? 'none' : 'block';
+        });
+    });
+</script>
+
  <style>
      .hideable {
      cursor: pointer;

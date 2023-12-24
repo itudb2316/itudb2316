@@ -117,6 +117,15 @@ class Managers:
                 select_query = select_query.removesuffix('WHERE ')
 
             if sort_by != None:
+                if sort_by == 'managerID':
+                    sort_by = 'managers_stats.managerID'
+
+                elif sort_by == 'teamID':
+                    sort_by = 'managers_stats.teamID'
+
+                elif sort_by == 'yearID':
+                    sort_by = 'managers_stats.yearID'
+
                 select_query += ' ORDER BY '
                 if exclude_null:
                     select_query += 'CASE WHEN ' + sort_by + ' IS NULL THEN 1 ELSE 0 END, '
@@ -421,3 +430,71 @@ class Managers:
         finally:
             cursor.close()
             db.close()
+
+    def winner(self, queries):    
+            try:
+                db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
+                cursor = db.cursor()
+                
+                managerID = queries['managerID']
+
+
+                stored_function_query = 'SELECT DISTINCT managers_stats.managerID, GetManagerWinPercentage(managers_stats.managerID) AS winPercentage FROM managers_stats WHERE managers_stats.managerID = \'' + managerID + '\' ;'
+            
+                cursor.execute(stored_function_query)
+
+                results = cursor.fetchall()
+                
+                db.commit()
+
+            except dbapi.Error as err:
+                db.rollback()
+                results = []
+                
+            finally:
+                cursor.close()
+                db.close()
+
+            return results
+    
+    def champions(self):    
+            try:
+                db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
+                cursor = db.cursor()
+                
+                stored_procedure_query = 'call GetChampionsLast20Years();'
+            
+                cursor.execute(stored_procedure_query)
+
+                results = cursor.fetchall()
+
+            except dbapi.Error as err:
+                db.rollback()
+                results = []
+                
+            finally:
+                cursor.close()
+                db.close()
+
+            return results
+    
+    def legends(self):    
+            try:
+                db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
+                cursor = db.cursor()
+                
+                stored_procedure_query = 'call GetMostExperiencedManagers();'
+            
+                cursor.execute(stored_procedure_query)
+
+                results = cursor.fetchall()
+
+            except dbapi.Error as err:
+                db.rollback()
+                results = []
+                
+            finally:
+                cursor.close()
+                db.close()
+
+            return results
