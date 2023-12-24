@@ -29,3 +29,8 @@ Week 6 (11-17 Dec):
   - Managers page is embedded into Home page and the project as a whole.
   - Column ordering in both ascending and descending way is implemented to increase usability.
   - Bugs related to route and URL are fixed.
+
+Week 7 (18-24 Dec):
+  - Database normalization is done and managers table splitted into three tables: managers_lg, managers_stats, managers_player.
+  - CRUD operations are adjusted and optimized such that they can work with normalized decomposed relations instead of single table.
+  - JOIN opeartion is added to search among decompomposed relations.

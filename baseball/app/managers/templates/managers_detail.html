@@ -6,9 +6,9 @@
 
         <ul class="article-content list-group">
             <div class="btn-group" role="group" aria-label="Basic example">
-                <a href="{{ url_for('managers.managers_update_search')}}?yearID={{result[1]}}&teamID={{result[2]}}&inseason={{result[4]}}"
+                <a href="{{ url_for('managers.managers_update_search')}}?managerID={{result[0]}}&yearID={{result[1]}}&teamID={{result[2]}}&inseason={{result[4]}}"
                     class="btn btn-secondary">Update</a>
-                    <a href="{{ url_for('managers.managers_delete')}}?yearID={{result[1]}}&teamID={{result[2]}}&inseason={{result[4]}}"
+                    <a href="{{ url_for('managers.managers_delete')}}?managerID={{result[0]}}&yearID={{result[1]}}&teamID={{result[2]}}&inseason={{result[4]}}"
                     class="btn btn-secondary">Delete</a>
             </div>
             {% for col in result %}

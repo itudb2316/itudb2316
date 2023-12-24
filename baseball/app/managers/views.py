@@ -11,6 +11,8 @@ def getURLQuery(query):
                 continue
             
             url_query[k] = v
+
+    print(url_query)
     return url_query
     
 @app.route('/managers/search', methods=["GET", "POST"])
@@ -20,7 +22,7 @@ def managers_search():
     if request.method == 'POST' and form.validate_on_submit():
         #read form data into query_params
         query_params = request.form.to_dict()
-
+        print(query_params)
         #remove empty fields and non-column fields and None values
         query_params = getURLQuery(query_params)
         print(query_params)
@@ -74,11 +76,12 @@ def managers_update_search():
 
     managers = current_app.config['MANAGERS']
     
+    oldmanagerID = request.args.get('managerID', None, type=str)
     oldyearID = request.args.get('yearID', None, type=int)
     oldteamID = request.args.get('teamID', None, type=str)
     oldinseason = request.args.get('inseason', None, type=int)
 
-    query = {'yearID' : oldyearID, 'teamID' : oldteamID, 'inseason': oldinseason}
+    query = {'managerID':oldmanagerID, 'yearID' : oldyearID, 'teamID' : oldteamID, 'inseason': oldinseason}
     print("Query: ", query)
     
     manager = managers.view_managers(query)
@@ -97,20 +100,21 @@ def managers_update_search():
                                    if form.__dict__['_fields'][k].data != '' and i < len(managers.COLUMNS.keys()))
         print("QUERY_STRING", query_string)
         # Use yearID instead of key in the redirect function
-        return redirect(url_for('managers.managers_update') + f'?oldyearID={oldyearID}&oldteamID={oldteamID}&oldinseason={oldinseason}&{query_string}')
+        return redirect(url_for('managers.managers_update') + f'?oldmanagerID={oldmanagerID}&oldyearID={oldyearID}&oldteamID={oldteamID}&oldinseason={oldinseason}&{query_string}')
     return render_template('managers.html', form=form, purpose='Update')
 
 @app.route('/managers/update')
 def managers_update():
     managers = current_app.config['MANAGERS']
-
+    
+    oldmanagerID = request.args.get('oldmanagerID', None, type=str)
     oldyearID = request.args.get('oldyearID', None, type=int)
     oldteamID = request.args.get('oldteamID', None, type=str)
     oldinseason = request.args.get('oldinseason', None, type=int)
 
     queries = getURLQuery(request.args.to_dict())
 
-    results,successFlag = managers.update_managers(oldyearID, oldteamID, oldinseason, queries)
+    results,successFlag = managers.update_managers(oldmanagerID, oldyearID, oldteamID, oldinseason, queries)
 
     if successFlag:
         flash(f'Successfully updated!', 'success')
@@ -123,11 +127,12 @@ def managers_update():
 def managers_delete():
     managers = current_app.config['MANAGERS']
 
+    managerID = request.args.get('managerID', None, type=str)
     yearID = request.args.get('yearID', None, type=int)
     teamID = request.args.get('teamID', None, type=str)
     inseason = request.args.get('inseason', None, type=int)
 
-    managers.delete_managers(yearID, teamID, inseason)
+    managers.delete_managers(managerID, yearID, teamID, inseason)
     
     flash(f'Successfully deleted!', 'success')
     return render_template('home.html')

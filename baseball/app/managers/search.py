@@ -17,7 +17,7 @@ class ManagersSearchForm(FlaskForm):
     submit = SubmitField('Search', render_kw={'class': 'btn btn-outline-secondary'})
 
 class ManagersInsertForm(FlaskForm):
-    managerID = StringField('Manager ID', [Length(max=10)], default="", render_kw={'placeholder': 'Enter the manager\'s ID'})
+    managerID = StringField('Manager ID', [Length(max=10), validators.InputRequired()], default="", render_kw={'placeholder': 'Enter the manager\'s ID (REQUIRED)'})
     yearID = IntegerField('Year ID',validators=[validators.InputRequired()], default=None, render_kw={'placeholder': 'Enter the year ID (REQUIRED)'})
     teamID = StringField('Team ID', [Length(max=3), validators.InputRequired()], default="", render_kw={'placeholder': 'Enter the team ID (REQUIRED)'})
     lgID = StringField('League ID', [Length(max=2)], default="", render_kw={'placeholder': 'Enter the league ID'})
