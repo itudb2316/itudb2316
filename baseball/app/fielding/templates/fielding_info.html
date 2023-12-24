@@ -19,12 +19,12 @@
                 <thead>
                     <tr>
                         <th scope="col">#</th>
-                        {% for col in header %}
+                        {% for col, name in header.items() %}
                         <th scope="col">
                             {% if sorted_column == col %}
-                                <a href="{{ url_for('fielding.fielding_info', sort_by=col, order=switch_order, **query) }}">{{ col }}</a>
+                                <a href="{{ url_for('fielding.fielding_info', sort_by=col, order=switch_order, **query) }}">{{ name }}</a>
                             {% else %}
-                                <a href="{{ url_for('fielding.fielding_info', sort_by=col, order='asc', **query) }}">{{ col }}</a>
+                                <a href="{{ url_for('fielding.fielding_info', sort_by=col, order='asc', **query) }}">{{ name }}</a>
                             {% endif %}
                         </th>
                         {% endfor %}

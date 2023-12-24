@@ -28,6 +28,69 @@ class Fielding:
         'kstint' : 0,
         'kpos' : ''
     }
+
+    INFO = {
+        "fielding" : {
+            'fm.playerID' : 'Player ID',
+            'fm.yearID' : 'Year',
+            'fm.stint' : 'Stint',
+            'fm.pos' : 'Position',
+            'fs.teamID' : 'Team',
+            'fs.lgID' : 'League',
+            'fm.g' : 'Games',
+            'fm.gs' : 'Games Started',
+            'fm.innOuts' : 'In Outs',
+            'fm.po' : 'Putouts',
+            'fm.a' : 'Assists',
+            'fm.e' : 'Errors',
+            'fm.dp' : 'Double Plays',
+            'fm.pb' : 'Passed Balls',
+            'fm.wp' : 'Wild Pitches',
+            'fm.sb' : 'Stolen Bases',
+            'fm.cs' : 'Caught Stealing',
+            'fm.zr' : 'Zone Rating'
+        },
+    }
+
+    TABLES = {
+        "fielding" : {
+            "main_cols" : {
+                'g' : 'int',
+                'gs' : 'int',
+                'innOuts' : 'int',
+                'po' : 'int',
+                'a' : 'int',
+                'e' : 'int',
+                'dp' : 'int',
+                'pb' : 'int',
+                'wp' : 'int',
+                'sb' : 'int',
+                'cs' : 'int',
+                'zr' : 'int'
+            },
+            "main_keys" : {
+                'playerID' : 'str',
+                'yearID' : 'int',
+                'stint' : 'int',
+                'pos' : 'str'
+            },
+            "sub_cols" : {
+                'teamID' : 'str',
+                'lgID' : 'str'
+            },
+            "sub_keys" : {
+                'playerID' : 'str',
+                'yearID' : 'int',
+                'stint' : 'int'
+            }
+        },
+        "fieldingpost" : {
+            "main_cols" : {},
+            "main_keys" : {},
+            "sub_cols" : {},
+            "sub_keys" : {}
+        }
+    }
     
     def __init__(self):
         self.app = app
@@ -36,18 +99,42 @@ class Fielding:
         try:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
-            select_query = 'SELECT '
-            select_query += ", ".join(self.COLUMNS.keys())
-            select_query += ' FROM fielding WHERE '
-
+            #select_query = 'SELECT fm.*, fs.'
+            select_query = 'SELECT fm.'
+            select_query += ", fm.".join(self.TABLES["fielding"]["main_keys"].keys())
+            select_query += ', fs.'
+            select_query += ", fs.".join(self.TABLES["fielding"]["sub_cols"].keys())
+            select_query += ', fm.'
+            select_query += ", fm.".join(self.TABLES["fielding"]["main_cols"].keys())
+            select_query += ' FROM fielding fm, fielding_sub fs WHERE'
+            select_query += ' fm.playerID=fs.playerID AND fm.yearID=fs.yearID AND fm.stint=fs.stint AND '
             conditions = []
+            print(queries.keys())
             for k,v in queries.items():
-                if v == 'None' or v == None:
+                if v == 'None' or v == None or v == 'Submit':
                     continue
-                if self.COLUMNS[k] == 'int':
-                    conditions.append(k + ' = ' + v)
-                elif self.COLUMNS[k] == 'str':
-                    conditions.append(k + ' = \'' + v + '\'')
+                suffix = k.split('_')[0]
+                field = k.split('_')[1]
+                if suffix == 'mksk' or suffix == 'mk':
+                    if self.TABLES["fielding"]["main_keys"][field] == 'int':
+                        conditions.append('fm.' + field + ' = ' + v)
+                    elif self.TABLES["fielding"]["main_keys"][field] == 'str':
+                        conditions.append('fm.' + field + ' = \'' + v + '\'')
+                elif suffix == 'mc':
+                    if self.TABLES["fielding"]["main_cols"][field] == 'int':
+                        conditions.append('fm.' + field + ' = ' + v)
+                    elif self.TABLES["fielding"]["main_cols"][field] == 'str':
+                        conditions.append('fm.' + field + ' = \'' + v + '\'')
+                elif suffix == 'sk':
+                    if self.TABLES["fielding"]["sub_keys"][field] == 'int':
+                        conditions.append('fs.' + field + ' = ' + v)
+                    elif self.TABLES["fielding"]["sub_keys"][field] == 'str':
+                        conditions.append('fs.' + field + ' = \'' + v + '\'')
+                elif suffix == 'sc':
+                    if self.TABLES["fielding"]["sub_cols"][field] == 'int':
+                        conditions.append('fs.' + field + ' = ' + v)
+                    elif self.TABLES["fielding"]["sub_cols"][field] == 'str':
+                        conditions.append('fs.' + field + ' = \'' + v + '\'')
             select_query += " AND ".join(conditions)
             if len(conditions) == 0:
                 select_query = select_query.removesuffix('WHERE ')

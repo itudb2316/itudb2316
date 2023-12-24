@@ -1,7 +1,18 @@
 from flask import current_app, render_template, request, redirect, url_for, flash
 from . import fielding_blueprint as app
 from .search import FieldingSearchForm
-from app.tools import paginate, getURLQuery
+from app.tools import paginate
+
+def getURLQuery(query, table):
+    url_query = {}
+    for k, v in query.items():
+        #if k in current_app.config[table].COLUMNS.keys():
+        if k[0:2] == 'mk' or k[0:2] == 'sc' or k[0:2] == 'mc':
+            if v == 'None' or v == None or v == '':
+                continue
+            
+            url_query[k] = v
+    return url_query
 
 @app.route('/fielding/search', methods=["GET", "POST"])
 def fielding_search():
@@ -9,8 +20,7 @@ def fielding_search():
     if request.method == 'POST' and form.validate_on_submit():
         #read form data into query_params
         query_params = request.form.to_dict()
-
-        print(query_params)
+        query_params.pop('csrf_token')
         #remove empty fields and non-column fields and None values
         query_params = getURLQuery(query_params, "FIELDING")
         print(query_params)
@@ -37,7 +47,7 @@ def fielding_info():
         flash(f'No results were found! Try again.', 'danger')
         return redirect(url_for('fielding.fielding_search'))
     return render_template('fielding_info.html', query=query, results=paginated_data, 
-                            header=current_app.config['FIELDING'].COLUMNS.keys(), 
+                            header=current_app.config['FIELDING'].INFO['fielding'], 
                             page_info=page_info, sort_by=sort_by, order=order)
 
 @app.route('/fielding/detail')
