@@ -1,0 +1,99 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Teams Detail Page</h1>
+<article class="media content-section">
+    <div class="media-body">
+        <input type="checkbox" id="hideCheckbox"> <label for="hideCheckbox">Hide Legend</label>
+        <p id="hideableParagraph" class="hideable">Legend: <br>
+            yearID:         Year <br>
+            lgID:           League <br>
+            teamID:         Team <br>
+            franchID:       Franchise (links to TeamsFranchise table) <br>
+            divID:          Team's division <br>
+            Rank:           Position in final standings <br>
+            G:              Games played <br>
+            GHome:          Games played at home <br>
+            W:              Wins <br>
+            L:              Losses <br>
+            DivWin:         Division Winner (Y or N) <br>
+            WCWin:          Wild Card Winner (Y or N) <br>
+            LgWin:          League Champion(Y or N) <br>
+            WSWin:          World Series Winner (Y or N) <br>
+            R:              Runs scored <br>
+            AB:             At bats <br>
+            H:              Hits by batters <br>
+            2B:             Doubles <br>
+            3B:             Triples <br>
+            HR:             Homeruns by batters <br>
+            BB:             Walks by batters <br>
+            SO:             Strikeouts by batters <br>
+            SB:             Stolen bases <br>
+            CS:             Caught stealing <br>
+            HBP:            Batters hit by pitch <br>
+            SF:             Sacrifice flies <br>
+            RA:             Opponents runs scored <br>
+            ER:             Earned runs allowed <br>
+            ERA:            Earned run average <br>
+            CG:             Complete games <br>
+            SHO:           Shutouts <br>
+            SV:             Saves <br>
+            IPOuts:         Outs Pitched (innings pitched x 3) <br>
+            HA:             Hits allowed <br>
+            HRA:            Homeruns allowed <br>
+            BBA:            Walks allowed <br>
+            SOA:            Strikeouts by pitchers <br>
+            E:              Errors <br>
+            DP:             Double Plays <br>
+            FP:             Fielding  percentage <br>
+            name:           Team's full name <br>
+            park:           Name of team's home ballpark <br>
+            attendance:     Home attendance total <br>
+            BPF:            Three-year park factor for batters <br>
+            PPF:            Three-year park factor for pitchers <br>
+            teamIDBR:       Team ID used by Baseball Reference website <br>
+            teamIDlahman45: Team ID used in Lahman database version 4.5 <br>
+            teamIDretro:    Team ID used by Retrosheet</p>
+
+        <ul class="article-content list-group">
+            <div class="btn-group" role="group" aria-label="Basic example">
+                <a href="{{ url_for('teams.teams_update_search', transmit=result) }}"
+                    class="btn btn-secondary">Update</a>
+                <a href="{{ url_for('teams.teams_delete', query_list=result) }}"
+                    class="btn btn-secondary">Delete</a>
+            </div>
+            {% for col in result %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>{{ header[loop.index - 1]|capitalize }}</span>
+                <span class="badge badge-primary badge-pill">{{ col }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</article>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+     var hideCheckbox = document.getElementById('hideCheckbox');
+     var hideableParagraph = document.getElementById('hideableParagraph');
+ 
+     // Add a change event listener to toggle visibility
+     hideCheckbox.addEventListener('change', function() {
+         // Toggle the visibility by toggling the 'hidden' class
+         hideableParagraph.classList.toggle('hidden', hideCheckbox.checked);
+     });
+ });
+ 
+ </script>
+ 
+ <style>
+     .hideable {
+     cursor: pointer;
+     color: black;
+ }
+ 
+ .hidden {
+     display: none;
+ }
+ 
+ </style>
+{% endblock content %}

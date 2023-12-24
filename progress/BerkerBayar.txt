@@ -30,3 +30,9 @@ Week 6 (11 Dec - 17 Dec):
 
     - Added the first and second half season statistics pages and implemented a smart query to compare team statistics
     - The user can now select and add teams from a drop down menu and compare the half season statistics of these selected teams and filter the results
+
+Week 7 (18 Dec - 24 Dec):
+	
+    - Started working on the integration of the teams table into the webpage together with Ömer Yıldırım since we share this table.
+    - Made the front-end development of the webpage regarding the teams table.
+    - Prepared my own part of the presentation document for our project.

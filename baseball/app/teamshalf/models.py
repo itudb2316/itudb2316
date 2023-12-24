@@ -188,7 +188,7 @@ class Teamshalf:
                 if self.teams_table_insertion_headers[i] == 'teamshalf.Half':
                     continue
                 if data[self.teams_table_insertion_headers[i]] == 'None':
-                    teams_table_insert_query += 'NULL'
+                    teams_table_insert_query += 'NULL, '
                 elif self.teams_table_insertion_column_types[i] == 'int':
                     teams_table_insert_query +=  data[self.teams_table_insertion_headers[i]] + ', '
                 elif self.teams_table_insertion_column_types[i] == 'str':
@@ -218,7 +218,7 @@ class Teamshalf:
             secondary_table_insert_query += ') VALUES ('
             for i in range(len(secondary_table_insertion_headers)):
                 if data2[secondary_table_insertion_headers[i]] == 'None':
-                    secondary_table_insert_query += 'NULL'
+                    secondary_table_insert_query += 'NULL, '
                 elif secondary_table_insertion_columns[i] == 'int':
                     secondary_table_insert_query +=  data2[secondary_table_insertion_headers[i]] + ', '
                 elif secondary_table_insertion_columns[i] == 'str':
@@ -247,7 +247,7 @@ class Teamshalf:
             insert_query += ') VALUES ('
             for i in range(len(teamshalf_table_insertion_headers)):
                 if data3[teamshalf_table_insertion_headers[i]] == 'None':
-                    insert_query += 'NULL'
+                    insert_query += 'NULL, '
                 elif teamshalf_table_insertion_columns[i] == 'int':
                     insert_query +=  data3[teamshalf_table_insertion_headers[i]] + ', '
                 elif teamshalf_table_insertion_columns[i] == 'str':
@@ -273,7 +273,7 @@ class Teamshalf:
             print(parsed_list)
         
 
-            smart_query = 'SELECT teamshalf.teamID, teamshalf_teams.name, teamshalf_teams.lgID, teamshalf.Half, teamshalf.Rank, ((teamshalf.W/teamshalf.G) * 100) AS WinRatio FROM teamshalf JOIN teamshalf_teams ON teamshalf.teamID = teamshalf_teams.teamID WHERE teamshalf_teams.name IN ('
+            smart_query = 'SELECT teamshalf.teamID, teamshalf_teams.name, teamshalf_teams.lgID, teamshalf.Half, teamshalf.Rank, teamshalf.G, teamshalf.W, teamshalf.L, ((teamshalf.W/teamshalf.G) * 100) AS WinRatio FROM teamshalf JOIN teamshalf_teams ON teamshalf.teamID = teamshalf_teams.teamID WHERE teamshalf_teams.name IN ('
             apostrophe = "'"
             for team in parsed_list:
                 smart_query = smart_query + apostrophe
@@ -307,7 +307,7 @@ class Teamshalf:
             print(parsed_list)
         
 
-            smart_query = 'SELECT teamshalf.teamID, teamshalf_teams.name, teamshalf_teams.lgID, teamshalf.Half, teamshalf.Rank, ((teamshalf.W/teamshalf.G) * 100) AS WinRatio FROM teamshalf JOIN teamshalf_teams ON teamshalf.teamID = teamshalf_teams.teamID WHERE teamshalf_teams.name IN ('
+            smart_query = 'SELECT teamshalf.teamID, teamshalf_teams.name, teamshalf_teams.lgID, teamshalf.Half, teamshalf.Rank, teamshalf.G, teamshalf.W, teamshalf.L, ((teamshalf.W/teamshalf.G) * 100) AS WinRatio FROM teamshalf JOIN teamshalf_teams ON teamshalf.teamID = teamshalf_teams.teamID WHERE teamshalf_teams.name IN ('
             apostrophe = "'"
             for team in parsed_list:
                 smart_query = smart_query + apostrophe

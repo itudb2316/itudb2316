@@ -9,12 +9,15 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th scope="col" class="sortable" data-column="team_id">Team ID</th>
-                        <th scope="col" class="sortable" data-column="team_name">Team Name</th>
-                        <th scope="col" class="sortable" data-column="league_id">League ID</th>
-                        <th scope="col" class="sortable" data-column="half">Half</th>
-                        <th scope="col" class="sortable" data-column="ranking">Ranking</th>
-                        <th scope="col" class="sortable" data-column="win_ratio">Win Ratio (%)</th>
+                        <th scope="col" class="sortable" data-column="team_id"><input type="checkbox" class="column-checkbox" data-column="team_id"> Team ID</th>
+                        <th scope="col" class="sortable" data-column="team_name"><input type="checkbox" class="column-checkbox" data-column="team_name"> Team Name</th>
+                        <th scope="col" class="sortable" data-column="league_id"><input type="checkbox" class="column-checkbox" data-column="league_id"> League ID</th>
+                        <th scope="col" class="sortable" data-column="half"><input type="checkbox" class="column-checkbox" data-column="half"> Half</th>
+                        <th scope="col" class="sortable" data-column="ranking"><input type="checkbox" class="column-checkbox" data-column="ranking"> Ranking</th>
+                        <th scope="col" class="sortable" data-column="games"><input type="checkbox" class="column-checkbox" data-column="games"> Games Played</th>
+                        <th scope="col" class="sortable" data-column="wins"><input type="checkbox" class="column-checkbox" data-column="wins"> Wins</th>
+                        <th scope="col" class="sortable" data-column="losses"><input type="checkbox" class="column-checkbox" data-column="losses"> Losses</th>
+                        <th scope="col" class="sortable" data-column="win_ratio"><input type="checkbox" class="column-checkbox" data-column="win_ratio"> Win Ratio(%)</th>
                         
                     </tr>
                 </thead>
@@ -75,6 +78,19 @@
 
             // Show all rows in the table
             $('.table tbody tr').show();
+        });
+
+        $('.column-checkbox').change(function() {
+            var column = $(this).data('column');
+            var columnIndex = $('th[data-column="' + column + '"]').index();
+
+            // Toggle visibility of the corresponding cells in the rows
+            $('.table tr').each(function() {
+                var cell = $(this).find('td:eq(' + columnIndex + ')');
+                cell.css('visibility', function(i, visibility) {
+                    return (visibility === 'hidden') ? 'visible' : 'hidden';
+                });
+            });
         });
     });
 

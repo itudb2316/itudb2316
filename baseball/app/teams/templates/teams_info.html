@@ -1,0 +1,174 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Teams Page</h1>
+<article class="media content-section">
+    {% if order == 'asc' %}
+        {% set switch_order = 'desc' %}
+    {% else %}
+        {% set switch_order = 'asc' %}
+    {% endif %}
+    {% set sorted_column = sort_by %}
+    <div class="media-body">
+        <ul class="article-content list-group">
+            <div class="btn-group" role="group" aria-label="Basic example">
+                <a href="{{ url_for('teams.teams_insert_search') }}" class="btn btn-secondary">Insert New</a>
+            </div>
+        </ul>
+        <input type="checkbox" id="hideCheckbox"> <label for="hideCheckbox">Hide Legend</label>
+        <p id="hideableParagraph" class="hideable">Legend: <br>
+            yearID:         Year <br>
+            lgID:           League <br>
+            teamID:         Team <br>
+            franchID:       Franchise (links to TeamsFranchise table) <br>
+            divID:          Team's division <br>
+            Rank:           Position in final standings <br>
+            G:              Games played <br>
+            GHome:          Games played at home <br>
+            W:              Wins <br>
+            L:              Losses <br>
+            DivWin:         Division Winner (Y or N) <br>
+            WCWin:          Wild Card Winner (Y or N) <br>
+            LgWin:          League Champion(Y or N) <br>
+            WSWin:          World Series Winner (Y or N) <br>
+            R:              Runs scored <br>
+            AB:             At bats <br>
+            H:              Hits by batters <br>
+            2B:             Doubles <br>
+            3B:             Triples <br>
+            HR:             Homeruns by batters <br>
+            BB:             Walks by batters <br>
+            SO:             Strikeouts by batters <br>
+            SB:             Stolen bases <br>
+            CS:             Caught stealing <br>
+            HBP:            Batters hit by pitch <br>
+            SF:             Sacrifice flies <br>
+            RA:             Opponents runs scored <br>
+            ER:             Earned runs allowed <br>
+            ERA:            Earned run average <br>
+            CG:             Complete games <br>
+            SHO:           Shutouts <br>
+            SV:             Saves <br>
+            IPOuts:         Outs Pitched (innings pitched x 3) <br>
+            HA:             Hits allowed <br>
+            HRA:            Homeruns allowed <br>
+            BBA:            Walks allowed <br>
+            SOA:            Strikeouts by pitchers <br>
+            E:              Errors <br>
+            DP:             Double Plays <br>
+            FP:             Fielding  percentage <br>
+            name:           Team's full name <br>
+            park:           Name of team's home ballpark <br>
+            attendance:     Home attendance total <br>
+            BPF:            Three-year park factor for batters <br>
+            PPF:            Three-year park factor for pitchers <br>
+            teamIDBR:       Team ID used by Baseball Reference website <br>
+            teamIDlahman45: Team ID used in Lahman database version 4.5 <br>
+            teamIDretro:    Team ID used by Retrosheet</p>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        {% for col in header %}
+                        <th scope="col">
+
+                            {% if sorted_column == col %}
+                                <a href="{{ url_for('teams.teams_info', query=query, sort_by=col, order=switch_order) }}">{{ col }}</a>
+                            {% else %}
+                                <a href="{{ url_for('teams.teams_info', query=query, sort_by=col, order='asc') }}">{{ col }}</a>
+                            {% endif %}
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                    <tr>
+                        <th scope="row">
+                            <!-- copy every entry into a detail_query and make all of them null except first one-->
+
+                            {% set detail_query = [] %}
+                            {% set _ = detail_query.append(result[0]) %}
+                            {% for i in result[1:] %}
+                                {% set _ = detail_query.append('None') %}
+                            {% endfor %}
+
+                            <a class="badge badge-primary"
+                                href="{{ url_for('teams.teams_detail', query_list=detail_query, sort_by=sorted_column, order=order) }}">
+                                {{ loop.index + (page_info['page'] - 1) * page_info['per_page'] }}
+                            </a>
+                        </th>
+                        {% for entry in result %}
+                        <td>{{ entry }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <ul class="pagination justify-content-center">
+            {% if page_info['page'] > 1 %}
+            <li class="page-item">
+                <a class="page-link"
+                    href="{{ url_for('teams.teams_info', query=query, sort_by=sorted_column, order=order, page=page_info['page']-1) }}"
+                    aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                    <span class="sr-only">Previous</span>
+                </a>
+            </li>
+            <li class="page-item"><a class="page-link"
+                href="{{ url_for('teams.teams_info', query=query, sort_by=sorted_column, order=order, page=1) }}">1</a>
+            </li>
+            <li class="page-item">...</li>
+            <li class="page-item"><a class="page-link"
+                    href="{{ url_for('teams.teams_info', query=query, sort_by=sorted_column, order=order, page=page_info['page']-1) }}">{{
+                    page_info['page'] -1
+                    }}</a></li>
+            {% endif %}
+            <li class="page-item"><a class="page-link" href="#">{{ page_info['page'] }}</a></li>
+            {% if page_info['page'] < page_info['pages'] %} <li class="page-item"><a class="page-link"
+                    href="{{ url_for('teams.teams_info', query=query, sort_by=sorted_column, order=order, page=page_info['page']+1) }}">{{
+                    page_info['page'] + 1 }}</a></li>
+                <li class="page-item">...</li>
+                <li class="page-item"><a class="page-link"
+                        href="{{ url_for('teams.teams_info', query=query, sort_by=sorted_column, order=order, page=page_info['pages']) }}">{{
+                        page_info['pages'] }}</a></li>
+                <li class="page-item">
+                    <a class="page-link"
+                        href="{{ url_for('teams.teams_info', query=query, sort_by=sorted_column, order=order, page=page_info['page']+1) }}"
+                        aria-label="Next">
+                        <span class="sr-only">Next</span>
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+        </ul>
+    </div>
+</article>
+
+<script>
+   document.addEventListener('DOMContentLoaded', function() {
+    var hideCheckbox = document.getElementById('hideCheckbox');
+    var hideableParagraph = document.getElementById('hideableParagraph');
+
+    // Add a change event listener to toggle visibility
+    hideCheckbox.addEventListener('change', function() {
+        // Toggle the visibility by toggling the 'hidden' class
+        hideableParagraph.classList.toggle('hidden', hideCheckbox.checked);
+    });
+});
+
+</script>
+
+<style>
+    .hideable {
+    cursor: pointer;
+    color: black;
+}
+
+.hidden {
+    display: none;
+}
+
+</style>
+{% endblock content %}
