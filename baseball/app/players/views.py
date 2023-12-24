@@ -1,6 +1,6 @@
 from flask import current_app, render_template, request, redirect, url_for, flash
 from . import players_blueprint as app
-from .search import PlayersSearchForm
+from .search import PlayersSearchForm, PlayersInsertForm, PlayersUpdateForm
 from app.tools import paginate
 
 def getURLQuery(query):
@@ -72,7 +72,7 @@ def players_detail():
 
 @app.route('/players/update_form', methods=["GET", "POST"])
 def players_update_search():
-    form = PlayersSearchForm()
+    form = PlayersUpdateForm()
 
     players = current_app.config['PLAYERS']
     key = request.args.get('key', None, type=str)
@@ -101,7 +101,9 @@ def players_update():
 
     players.update_players(key, queries)
     flash(f'Successfully updated!', 'success')
-    return render_template('home.html')
+    queries = {'lahmanID' : key}
+    results = players.view_players(queries)
+    return render_template('players_detail.html', result=results[0], header=list(current_app.config['PLAYERS'].COLUMNS.keys()))
 
 @app.route('/players/delete')
 def players_delete():
@@ -114,7 +116,7 @@ def players_delete():
 
 @app.route('/players/insert_form', methods=["GET", "POST"])
 def players_insert_search():
-    form = PlayersSearchForm()
+    form = PlayersInsertForm()
     players = current_app.config['PLAYERS']
     if request.method == 'POST' and form.validate_on_submit():
         query_params = request.form.to_dict()

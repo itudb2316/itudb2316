@@ -1,6 +1,6 @@
 from flask import current_app, render_template, request, redirect, url_for, flash
 from . import appearances_blueprint as app
-from .search import AppearancesSearchForm
+from .search import AppearancesSearchForm, AppearancesInsertForm, AppearancesUpdateForm
 from app.tools import paginate
 
 def getURLQuery(query):
@@ -69,7 +69,7 @@ def appearances_detail():
 
 @app.route('/appearances/update_form', methods=["GET", "POST"])
 def appearances_update_search():
-    form = AppearancesSearchForm()
+    form = AppearancesUpdateForm()
 
     appearances = current_app.config['APPEARANCES']
     key1 = request.args.get('key1', None, type=str)
@@ -104,7 +104,11 @@ def appearances_update():
 
     appearances.update_appearances(key1, key2, key3, queries)
     flash(f'Successfully updated!', 'success')
-    return render_template('home.html')
+    queries = {'yearID' : key1,
+               'teamID' : key2,
+               'playerID' : key3}
+    results = appearances.view_appearances(queries)
+    return render_template('appearances_detail.html', result=results[0], header=list(current_app.config['APPEARANCES'].COLUMNS.keys()))
 
 @app.route('/appearances/delete')
 def appearances_delete():
@@ -120,7 +124,7 @@ def appearances_delete():
 
 @app.route('/appearances/insert_form', methods=["GET", "POST"])
 def appearances_insert_search():
-    form = AppearancesSearchForm()
+    form = AppearancesInsertForm()
     appearances = current_app.config['APPEARANCES']
     if request.method == 'POST' and form.validate_on_submit():
         query_params = request.form.to_dict()
