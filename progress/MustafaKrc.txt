@@ -27,4 +27,13 @@ Week 6 (12 - 17 December):
     - Did research for normalization of players table.
     - Added smart query for teams the player played during his career in player_details page.
     - Updated url query generation, now it is more robust
+
+Week 7 (18-24 Dec):
+    - Implemented Appearances table into the website with full functionalities (Search, details, update, delete, insert).
+    - Normalized the Players and Appearances table to the 3rd form.
+    - Added UpdateForm and InsertForm for both Players and Appearances tables.
+    - Added players born today into the home page. User can click on their names to see their details.
+    - Redirected to players/Appearances details after insertion and modification. (previously redirected to the home page)
+    - Added welcome text to the Home page.
+
     
