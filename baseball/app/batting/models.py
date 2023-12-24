@@ -333,6 +333,8 @@ class Batting:
             print()
             print(delete_query)
             cursor.execute(delete_query)
+            delete_query = 'DELETE FROM batting_teams WHERE playerID = \'' + keys[0] + '\' AND yearID = ' + keys[1] + ' AND stint = ' + keys[2]
+            cursor.execute(delete_query)
             results = cursor.fetchall()
             db.commit()
         except dbapi.Error as err:

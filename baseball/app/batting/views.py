@@ -148,9 +148,9 @@ def batting_update():
 @app.route('/batting/delete')
 def batting_delete():
     batting = current_app.config['BATTING']
-    key1 = request.args.get('playerID', None, type=str)
-    key2 = request.args.get('yearID', None, type=str)
-    key3 = request.args.get('stint', None, type=str)
+    key1 = request.args.get('mksk_playerID', None, type=str)
+    key2 = request.args.get('mksk_yearID', None, type=str)
+    key3 = request.args.get('mksk_stint', None, type=str)
     keys = [key1, key2, key3]
     batting.delete_batting(keys)
     flash(f'Successfully deleted!', 'warning')
