@@ -67,6 +67,19 @@
                     <h3>Recommended</h3>
                     <p class='text-muted'>
                     <ul class="list-group">
+                        <li class="list-group-item list-group-item-light">Birthdays
+                            <ul class="list-group">
+                            {% for player in bday_players %}
+
+                            <li>
+                                <a href="{{ url_for('players.players_detail', lahmanID=player[0]) }}">
+                                    {{ player[1] }} {{ player[2] }}
+                                </a>
+                            </li>
+                            {% endfor %}
+                            </ul>
+                        </li>
+
                         <li class="list-group-item list-group-item-light">Favourites</li>
                         <li class="list-group-item list-group-item-light">Announcements</li>
                         <li class="list-group-item list-group-item-light">Calendars</li>
