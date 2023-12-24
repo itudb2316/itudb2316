@@ -34,3 +34,8 @@ Week 7 (18-24 Dec):
   - Database normalization is done and managers table splitted into three tables: managers_lg, managers_stats, managers_player.
   - CRUD operations are adjusted and optimized such that they can work with normalized decomposed relations instead of single table.
   - JOIN opeartion is added to search among decompomposed relations.
+
+  - Teams table designed and implemented with all CRUD operations.
+  - SQL queries of Teams table is designed and implemented.
+  - Individually, back-end models which interact with database via SQL queries and commit changes are implemented.
+  - models.py file is committed, now Teams table is functional with all CRUD operations.
