@@ -1,0 +1,91 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Appearances Page</h1>
+<!-- TODO: ADD BUTTON TO EXCLUDE/INCLUDE NULL VALUES (FOR SORTING)-->
+<article class="media content-section">
+    {% if order == 'asc' %}
+        {% set switch_order = 'desc' %}
+    {% else %}
+        {% set switch_order = 'asc' %}
+    {% endif %}
+    {% set sorted_column = sort_by %}
+    <div class="media-body">
+        <ul class="article-content list-group">
+            <div class="btn-group" role="group" aria-label="Basic example">
+                <a href="{{ url_for('appearances.appearances_insert_search') }}" class="btn btn-secondary">Insert New</a>
+            </div>
+        </ul>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        {% for col in header %}
+                        <th scope="col">
+
+                            {% if sorted_column == col %}
+                                <a href="{{ url_for('appearances.appearances_info') }}?{% for key, value in query.items() %}&{{ key }}={{ value }}{% endfor %}&sort_by={{ col }}&order={{ switch_order }}">{{ col }}</a>
+                            {% else %}
+                                <a href="{{ url_for('appearances.appearances_info') }}?{% for key, value in query.items() %}&{{ key }}={{ value }}{% endfor %}&sort_by={{ col }}&order=asc">{{ col }}</a>
+                            {% endif %}
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                    <tr>
+                        <th scope="row">
+                            <a class="badge badge-primary"
+                                href="{{ url_for('appearances.appearances_detail') }}?yearID={{result[0]}}&teamID={{result[1]}}&playerID={{result[3]}}">
+                                {{ loop.index + (page_info['page'] - 1) * page_info['per_page'] }}
+                            </a>
+                        </th>
+                        {% for entry in result %}
+                        <td>{{ entry }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <ul class="pagination justify-content-center">
+            {% if page_info['page'] > 1 %}
+            <li class="page-item">
+                <a class="page-link"
+                    href="{{ url_for('appearances.appearances_info', query=query, sort_by=sorted_column, order=order, page=page_info['page']-1) }}"
+                    aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                    <span class="sr-only">Previous</span>
+                </a>
+            </li>
+            <li class="page-item"><a class="page-link"
+                    href="{{ url_for('appearances.appearances_info', query=query, sort_by=sorted_column, order=order, page=1) }}">1</a>
+            </li>
+            <li class="page-item">...</li>
+            <li class="page-item"><a class="page-link"
+                    href="{{ url_for('appearances.appearances_info', query=query, sort_by=sorted_column, order=order, page=page_info['page']-1) }}">{{
+                    page_info['page'] -1
+                    }}</a></li>
+            {% endif %}
+            <li class="page-item"><a class="page-link" href="#">{{ page_info['page'] }}</a></li>
+            {% if page_info['page'] < page_info['pages'] %} <li class="page-item"><a class="page-link"
+                    href="{{ url_for('appearances.appearances_info', query=query, sort_by=sorted_column, order=order, page=page_info['page']+1) }}">{{
+                    page_info['page'] + 1 }}</a></li>
+                <li class="page-item">...</li>
+                <li class="page-item"><a class="page-link"
+                        href="{{ url_for('appearances.appearances_info', query=query, sort_by=sorted_column, order=order, page=page_info['pages']) }}">{{
+                        page_info['pages'] }}</a></li>
+                <li class="page-item">
+                    <a class="page-link"
+                        href="{{ url_for('appearances.appearances_info', query=query, sort_by=sorted_column, order=order, page=page_info['page']+1) }}"
+                        aria-label="Next">
+                        <span class="sr-only">Next</span>
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                {% endif %}
+        </ul>
+    </div>
+</article>
+{% endblock content %}

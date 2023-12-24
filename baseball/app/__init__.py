@@ -9,6 +9,7 @@ from app.batting.models import Batting
 from app.managers.models import Managers
 from app.teamshalf.models import Teamshalf
 from app.teams.models import Teams
+from app.appearances.models import Appearances
     
 def create_app():
     app = Flask(__name__)
@@ -25,6 +26,7 @@ def create_app():
     app.config['BATTING'] = Batting()
     app.config['TEAMSHALF'] = Teamshalf()
     app.config['TEAMS'] = Teams()
+    app.config['APPEARANCES'] = Appearances()
 
     # Register blueprints
     from app.home import home_blueprint
@@ -34,6 +36,7 @@ def create_app():
     from app.batting import batting_blueprint
     from app.teamshalf import teamshalf_blueprint
     from app.teams import teams_blueprint
+    from app.appearances import appearances_blueprint
 
     app.register_blueprint(home_blueprint)
     app.register_blueprint(fielding_blueprint)
@@ -42,5 +45,6 @@ def create_app():
     app.register_blueprint(batting_blueprint)
     app.register_blueprint(teamshalf_blueprint)
     app.register_blueprint(teams_blueprint)
+    app.register_blueprint(appearances_blueprint)
 
     return app
