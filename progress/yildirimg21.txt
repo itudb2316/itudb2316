@@ -33,3 +33,9 @@ Week 6 (12 - 17 December)
 -URL for batting_detail have been successfully changed.
 -Insert function is workable once again.
 -Delete and Update functions have been tried to be changed with the new dictionary values to no success.
+
+Week 7 (18 - 25 December)
+
+-Delete and Update functions have been successfully changed with the new dictionary values.
+-Normalisation is added to the entirety of the data table, thus resulting in the change of the entire code at certain parts.
+-Update form is added for updating an element.
