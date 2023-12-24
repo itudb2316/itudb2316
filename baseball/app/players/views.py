@@ -65,9 +65,10 @@ def players_detail():
         return redirect(url_for('players.players_search'))
     
     teams_played = players.getPlayedTeams(results[0][1]) # TODO: find a way to gather playerID from results instead of hardcoding index 1
-    
+    player_awards = players.getPlayerAwards(results[0][1])
+    print("player_awards : ",player_awards)
     return render_template('players_detail.html', result=results[0], header=list(current_app.config['PLAYERS'].COLUMNS.keys()),
-                                                                                teams_played=teams_played)
+                                                                                teams_played=teams_played, player_awards=player_awards)
 
 @app.route('/players/update_form', methods=["GET", "POST"])
 def players_update_search():

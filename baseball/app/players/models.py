@@ -47,7 +47,26 @@ class Players:
         try:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
-            select_query = 'SELECT DISTINCT teams.name, appearances.yearID FROM appearances INNER JOIN teams ON appearances.teamID = teams.teamID WHERE appearances.playerID = \'' + key + '\';'
+            select_query = 'SELECT DISTINCT teams.name, appearances.yearID, teams.teamID FROM appearances INNER JOIN teams ON appearances.teamID = teams.teamID WHERE appearances.playerID = \'' + key + '\';'
+            print()
+            print(select_query)
+            cursor.execute(select_query)
+            results = cursor.fetchall()
+            db.commit()
+
+        except dbapi.Error as err:
+            db.rollback()
+            results = []
+        finally:
+            cursor.close()
+            db.close()
+        return results
+    
+    def getPlayerAwards(self, key):
+        try:
+            db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
+            cursor = db.cursor()
+            select_query = 'SELECT awardsplayers.awardID, awardsplayers.yearID, awardsplayers.lgID, awardsplayers.tie, awardsplayers.notes FROM awardsplayers WHERE awardsplayers.playerID = \'' + key + '\';'
             print()
             print(select_query)
             cursor.execute(select_query)
