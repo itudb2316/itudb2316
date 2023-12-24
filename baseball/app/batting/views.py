@@ -3,12 +3,13 @@ from . import batting_blueprint as app
 from app.tools import paginate
 from .search import BattingSearchForm
 
-def get_url_query(data):
+def get_url_query(query, table):
     url_query = {}
-    for k, v in data.items():
-        if k in current_app.config['BATTING'].header_type.keys():
-            if v == None or v == 'None' or v == '':
+    for k, v in query.items():
+        if k[0:2] == 'mk' or k[0:2] == 'sc' or k[0:2] == 'mc':
+            if v == 'None' or v == None or v == '':
                 continue
+            
             url_query[k] = v
     return url_query
 
@@ -33,7 +34,8 @@ def batting_search():
     form = BattingSearchForm() 
     if request.method == 'POST' and form.validate_on_submit():
         query_parameters = request.form.to_dict()
-        query_parameters = get_url_query(query_parameters)
+        query_parameters.pop('csrf_token')
+        query_parameters = get_url_query(query_parameters, "BATTING")
         print(query_parameters)
         return redirect(url_for('batting.batting_info', **query_parameters))
     return render_template('batting.html', form = form, purpose='Search')
@@ -41,10 +43,11 @@ def batting_search():
 @app.route('/batting/results', methods=["GET", "POST"]) 
 def batting_info():
     query = request.args.to_dict()
+    print(query)
     sort_by = request.args.get('sort_by', None, type=str)
     order = request.args.get('order', None, type=str)
     batting = current_app.config['BATTING']
-    query = get_url_query(query)
+    query = get_url_query(query, "BATTING")
     results = batting.view_batting(query, sort_by, order)
     page = request.args.get('page', 1, type=int)
     per_page = current_app.config['PER_PAGE']
@@ -54,7 +57,9 @@ def batting_info():
     
     Titles = ["Player", "Year", "Stint", "Team", "League", "Games", "At Bats",
               "Runs", "Hits", "Doubles", "Triples", "Home Runs", "Runs Batted In",
-              "Stolen Bases", "Caught Stealing", "Strikeouts"]
+              "Stolen Bases", "Caught Stealing", "Base on Balls", "Strikeouts",
+              "Intentional Walks", "Hits by Pitch", "Sacrifice Hits", "Sacrifice Flies",
+              "Plays Grounded into Double Play"]
     
     if len(results) == 0:
         flash(f'No results were found.', 'danger')
@@ -64,13 +69,13 @@ def batting_info():
 @app.route('/batting/detail')
 def batting_detail():
     query = request.args.to_dict()
-    query = get_url_query(query)
+    print(query)
     batting = current_app.config['BATTING']
     results = batting.view_batting(query)
     if len(results) == 0:
         flash(f'No results were found.', 'danger')
         return redirect(url_for('batting.batting_search'))
-    return render_template('batting_detail.html', result=results[0], header=list(current_app.config['BATTING'].header_type.keys()))
+    return render_template('batting_detail.html', result=results[0], header=current_app.config['BATTING'].INFO["batting"])
     
     
 @app.route('/batting/insert_form', methods=["GET", "POST"])
@@ -88,14 +93,14 @@ def batting_insert_search():
 @app.route('/batting/insert', methods=["GET", "POST"])
 def batting_insert():
     battings = current_app.config['BATTING']
-    queries = get_url_query(request.args.to_dict())
+    queries = get_url_query(request.args.to_dict(), "BATTING")
     battings.insert_batting(queries)
     results = battings.view_batting(queries)
 
     if len(results) == 0:
         flash(f'No results were found! Try again.', 'danger')
         return redirect(url_for('batting.batting_insert_search'))
-    return render_template('batting_detail.html', result=results[0], header=list(current_app.config['BATTING'].header_type.keys()))
+    return render_template('batting_detail.html', result=results[0], header=current_app.config['BATTING'].INFO["batting"])
 
 @app.route('/batting/update_form', methods=["GET", "POST"])
 def batting_update_search():

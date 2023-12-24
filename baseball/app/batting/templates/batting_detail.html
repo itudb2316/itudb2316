@@ -5,13 +5,13 @@
     <div class="media-body">
         <ul class="article-content list-group">
             <div class="btn-group" role="group" aria-label="Basic example">
-                <a href="{{ url_for('batting.batting_update_search')}}?playerID={{result[0]}}&yearID={{result[1]}}&stint={{result[2]}}" class="btn btn-secondary">Update</a>
-                <a href="{{ url_for('batting.batting_delete')}}?playerID={{result[0]}}&yearID={{result[1]}}&stint={{result[2]}}" class="btn btn-secondary">Delete</a>
+                <a href="{{ url_for('batting.batting_update_search', mksk_playerID=result[0], mksk_yearID=result[1], mksk_stint=result[2])}}" class="btn btn-secondary">Update</a>
+                <a href="{{ url_for('batting.batting_delete', mksk_playerID=result[0], mksk_yearID=result[1], mksk_stint=result[2])}}" class="btn btn-secondary">Delete</a>
             </div>
-            {% for col in result %}
+            {% for col, name in header.items() %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span>{{header[loop.index - 1]|capitalize}}</span>
-                <span class="badge badge-primary badge-pill">{{col}}</span>
+                <span>{{name|capitalize}}</span>
+                <span class="badge badge-primary badge-pill">{{ result[loop.index - 1] }}</span>
             </li>
             {% endfor %}
         </ul>
