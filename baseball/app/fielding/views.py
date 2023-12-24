@@ -1,6 +1,6 @@
 from flask import current_app, render_template, request, redirect, url_for, flash
 from . import fielding_blueprint as app
-from .search import FieldingSearchForm
+from .search import FieldingSearchForm, FieldingUpdateForm
 from app.tools import paginate
 
 def getURLQuery(query, table):
@@ -55,7 +55,6 @@ def fielding_detail():
     fielding = current_app.config['FIELDING']
     query = request.args.to_dict()
     results = fielding.view_fielding(query)
-    print(results[0])
 
     if len(results) == 0:
         flash(f'No results were found! Try again.', 'danger')
@@ -64,35 +63,34 @@ def fielding_detail():
 
 @app.route('/fielding/update_form', methods=["GET", "POST"])
 def fielding_update_search():
-    form = FieldingSearchForm()
+    form = FieldingUpdateForm()
     fielding = current_app.config['FIELDING']
 
-    for key, _ in fielding.keyvalues.items():
-        fielding.keyvalues[key] = request.args.get(key, None, type=str)
-    query = {}
-    for key, value in fielding.keyvalues.items():
-        query[key.lstrip('k')] = value
+    query = request.args.to_dict()
     field = fielding.view_fielding(query)[0]
+
+    myArgs = {}
+    for key, value in query.items():
+        myArgs['k_' + key] = value
 
     if request.method == 'GET':
         for i, (k, _) in enumerate(form.__dict__['_fields'].items()):
-            if i < len(fielding.COLUMNS.keys()):
+            if i < len(fielding.INFO['fielding'].keys()):
                 form.__dict__['_fields'][k].data = field[i]
 
     if request.method == 'POST' and form.validate_on_submit():
         queries = request.form.to_dict()
         queries.pop('csrf_token')
-        print("QUERY_STRING", queries)
-        return redirect(url_for('fielding.fielding_update', **fielding.keyvalues, **queries))
+        #print("QUERY_STRING", queries)
+        #print("ARGS_STRING", myArgs)
+        return redirect(url_for('fielding.fielding_update', **myArgs, **queries))
     return render_template('fielding.html', form=form, purpose='Update')
 
 @app.route('/fielding/update', methods=["GET", "POST"])
 def fielding_update():
     fielding = current_app.config['FIELDING']
-    queries = getURLQuery(request.args.to_dict(), "FIELDING")
-
-    for key, _ in fielding.keyvalues.items():
-        fielding.keyvalues[key] = request.args.get(key, None, type=str)
+    queries = request.args.to_dict()
+    queries.pop('submit')
     db_response = fielding.update_fielding(queries)
 
     if db_response == True:

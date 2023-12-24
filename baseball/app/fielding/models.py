@@ -137,7 +137,7 @@ class Fielding:
                         conditions.append('fs.' + field + ' = \'' + v + '\'')
             select_query += " AND ".join(conditions)
             if len(conditions) == 0:
-                select_query = select_query.removesuffix('WHERE ')
+                select_query = select_query.removesuffix('AND ')
 
             if sort_by != None:
                 select_query += ' ORDER BY '
@@ -163,26 +163,76 @@ class Fielding:
         try:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
-            update_query = 'UPDATE fielding SET '
+            update_s_query = 'UPDATE fielding_sub AS fs SET '
+            update_m_query = 'UPDATE fielding AS fm SET '
             print("NEW_DATA", new_data)
             
-            new_values = []
+            conditions = []
+            new_s_values = []
+            new_m_values = []
             for k, v in new_data.items():
-                if '\'' in v:
-                    v = v.replace('\'', '\\\'')
-                if v == 'None' or v == None:
-                    new_values.append("fielding." + k + ' = NULL')
-                elif self.COLUMNS[k] == 'int':
-                    new_values.append("fielding." + k + ' = ' + v)
-                elif self.COLUMNS[k] == 'str':
-                    new_values.append("fielding." + k + ' = \'' + v + '\'')
-            update_query += ", ".join(new_values)
-            update_query += f' WHERE playerID = \'{self.keyvalues["kplayerID"]}\' AND \
-                             yearID = {self.keyvalues["kyearID"]} AND stint = {self.keyvalues["kstint"]} AND \
-                             pos = \'{self.keyvalues["kpos"]}\';'
+                if k.split('_')[0] == 'k':
+                    if '\'' in v:
+                        v = v.replace('\'', '\\\'')
+                    if v == 'None' or v == None or v == '':
+                        conditions.append(k.split('_')[2] + ' = NULL')
+                    elif self.TABLES["fielding"]["main_keys"][k.split('_')[2]] == 'int':
+                        conditions.append(k.split('_')[2] + ' = ' + v)
+                    elif self.TABLES["fielding"]["main_keys"][k.split('_')[2]] == 'str':
+                        conditions.append(k.split('_')[2] + ' = \'' + v + '\'')
+                elif k.split('_')[0] == 'sc':
+                    if '\'' in v:
+                        v = v.replace('\'', '\\\'')
+                    if v == 'None' or v == None or v == '':
+                        new_s_values.append("fs." + k.split('_')[1] + ' = NULL')
+                    elif self.TABLES["fielding"]["sub_cols"][k.split('_')[1]] == 'int':
+                        new_s_values.append("fs." + k.split('_')[1] + ' = ' + v)
+                    elif self.TABLES["fielding"]["sub_cols"][k.split('_')[1]] == 'str':
+                        new_s_values.append("fs." + k.split('_')[1] + ' = \'' + v + '\'')
+                elif k.split('_')[0] == 'mksk':
+                    if '\'' in v:
+                        v = v.replace('\'', '\\\'')
+                    if v == 'None' or v == None or v == '':
+                        new_m_values.append("fm." + k.split('_')[1] + ' = NULL')
+                        new_s_values.append("fs." + k.split('_')[1] + ' = NULL')
+                    elif self.TABLES["fielding"]["main_keys"][k.split('_')[1]] == 'int':
+                        new_m_values.append("fm." + k.split('_')[1] + ' = ' + v)
+                        new_s_values.append("fs." + k.split('_')[1] + ' = ' + v)
+                    elif self.TABLES["fielding"]["main_keys"][k.split('_')[1]]:
+                        new_m_values.append("fm." + k.split('_')[1] + ' = \'' + v + '\'')
+                        new_s_values.append("fs." + k.split('_')[1] + ' = \'' + v + '\'')
+                elif k.split('_')[0] == 'mk':
+                    if '\'' in v:
+                        v = v.replace('\'', '\\\'')
+                    if v == 'None' or v == None or v == '':
+                        new_m_values.append("fm." + k.split('_')[1] + ' = NULL')
+                    elif self.TABLES["fielding"]["main_keys"][k.split('_')[1]] == 'int':
+                        new_m_values.append("fm." + k.split('_')[1] + ' = ' + v)
+                    elif self.TABLES["fielding"]["main_keys"][k.split('_')[1]]:
+                        new_m_values.append("fm." + k.split('_')[1] + ' = \'' + v + '\'')
+                elif k.split('_')[0] == 'mc':
+                    if '\'' in v:
+                        v = v.replace('\'', '\\\'')
+                    if v == 'None' or v == None or v == '':
+                        new_m_values.append("fm." + k.split('_')[1] + ' = NULL')
+                    elif self.TABLES["fielding"]["main_cols"][k.split('_')[1]] == 'int':
+                        new_m_values.append("fm." + k.split('_')[1] + ' = ' + v)
+                    elif self.TABLES["fielding"]["main_cols"][k.split('_')[1]]:
+                        new_m_values.append("fm." + k.split('_')[1] + ' = \'' + v + '\'')
+
+            update_s_query += ", ".join(new_s_values)
+            update_s_query += " WHERE "
+            update_s_query += " AND ".join(conditions[:-1])
+
+            update_m_query += ", ".join(new_m_values)
+            update_m_query += " WHERE "
+            update_m_query += " AND ".join(conditions)
             print()
-            print(update_query)
-            cursor.execute(update_query)
+            print(update_s_query)
+            print(update_m_query)
+            cursor.execute(update_s_query)
+            db.commit()
+            cursor.execute(update_m_query)
             db.commit()
             cursor.close()
             db.close()

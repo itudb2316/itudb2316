@@ -5,9 +5,9 @@
     <div class="media-body">
         <ul class="article-content list-group">
             <div class="btn-group" role="group" aria-label="Basic example">
-                <a href="{{ url_for('fielding.fielding_update_search', mksk_playerID=result[0], mksk_yearID=result[1], mksk_stint=result[2], mk_pos=result[5]) }}"
+                <a href="{{ url_for('fielding.fielding_update_search', mksk_playerID=result[0], mksk_yearID=result[1], mksk_stint=result[2], mk_pos=result[3]) }}"
                     class="btn btn-secondary">Update</a>
-                <a href="{{ url_for('fielding.fielding_delete', mksk_playerID=result[0], mksk_yearID=result[1], mksk_stint=result[2], mk_pos=result[5]) }}"
+                <a href="{{ url_for('fielding.fielding_delete', mksk_playerID=result[0], mksk_yearID=result[1], mksk_stint=result[2], mk_pos=result[3]) }}"
                     class="btn btn-secondary">Delete</a>
             </div>
             {% for col, name in header.items() %}
