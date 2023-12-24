@@ -205,7 +205,7 @@ class Batting:
                         conditions.append('bs.' + field + ' = \'' + v + '\'')
             select_query += " AND ".join(conditions)
             if len(conditions) == 0:
-                select_query = select_query.removesuffix('WHERE ')
+                select_query = select_query.removesuffix('AND ')
             if sort_by != None:
                 select_query += ' ORDER BY '
                 if exclude_null:
@@ -259,6 +259,7 @@ class Batting:
             insert_query += ');'
             print(insert_query)
             cursor.execute(insert_query)
+            db.commit()
             
             insert_query = 'INSERT INTO batting_teams ('
             insert_query += ", ".join(self.TABLES["batting"]["batting_teams_cols"].keys())
@@ -297,23 +298,77 @@ class Batting:
             cursor.close()
             db.close()
 
-    def update_batting(self, keys, data):
+    def update_batting(self, data):
         try:
             db =  dbapi.connect(**self.app.config['MYSQL_CONN'])
             cursor = db.cursor()
-            update_query = 'UPDATE batting SET '
+            update_teams_query = 'UPDATE batting_teams AS bs SET '
+            update_query = 'UPDATE batting AS bm SET '
             conditions = []
+            new_s_values = []
+            new_m_values = []
             for k,v in data.items():
-                if v == 'None' or v == None:
-                    conditions.append(k + '= NULL')
-                if self.header_type[k] == 'int':
-                    conditions.append(k + ' = ' + v)
-                elif self.header_type[k] == 'str':
-                    conditions.append(k + ' = \'' + v + '\'')
-            update_query += ', '.join(conditions)
-            update_query += ' WHERE playerID = \'' + keys[0] + '\' AND yearID = ' + keys[1] + ' AND stint = ' + keys[2]
+                if k.split('_')[0] == 'k':
+                    if '\'' in v:
+                        v = v.replace('\'', '\\\'')
+                    if v == 'None' or v == None or v == '':
+                        conditions.append(k.split('_')[2] + ' = NULL')
+                    elif self.TABLES["batting"]["main_keys"][k.split('_')[2]] == 'int':
+                        conditions.append(k.split('_')[2] + ' = ' + v)
+                    elif self.TABLES["batting"]["main_keys"][k.split('_')[2]] == 'str':
+                        conditions.append(k.split('_')[2] + ' = \'' + v + '\'')
+                elif k.split('_')[0] == 'sc':
+                    if '\'' in v:
+                        v = v.replace('\'', '\\\'')
+                    if v == 'None' or v == None or v == '':
+                        new_s_values.append("bs." + k.split('_')[1] + ' = NULL')
+                    elif self.TABLES["batting"]["sub_cols"][k.split('_')[1]] == 'int':
+                        new_s_values.append("bs." + k.split('_')[1] + ' = ' + v)
+                    elif self.TABLES["batting"]["sub_cols"][k.split('_')[1]] == 'str':
+                        new_s_values.append("bs." + k.split('_')[1] + ' = \'' + v + '\'')
+                elif k.split('_')[0] == 'mksk':
+                    if '\'' in v:
+                        v = v.replace('\'', '\\\'')
+                    if v == 'None' or v == None or v == '':
+                        new_m_values.append("bm." + k.split('_')[1] + ' = NULL')
+                        new_s_values.append("bs." + k.split('_')[1] + ' = NULL')
+                    elif self.TABLES["batting"]["main_keys"][k.split('_')[1]] == 'int':
+                        new_m_values.append("bm." + k.split('_')[1] + ' = ' + v)
+                        new_s_values.append("bs." + k.split('_')[1] + ' = ' + v)
+                    elif self.TABLES["batting"]["main_keys"][k.split('_')[1]]:
+                        new_m_values.append("bm." + k.split('_')[1] + ' = \'' + v + '\'')
+                        new_s_values.append("bs." + k.split('_')[1] + ' = \'' + v + '\'')
+                elif k.split('_')[0] == 'mk':
+                    if '\'' in v:
+                        v = v.replace('\'', '\\\'')
+                    if v == 'None' or v == None or v == '':
+                        new_m_values.append("bm." + k.split('_')[1] + ' = NULL')
+                    elif self.TABLES["batting"]["main_keys"][k.split('_')[1]] == 'int':
+                        new_m_values.append("bm." + k.split('_')[1] + ' = ' + v)
+                    elif self.TABLES["batting"]["main_keys"][k.split('_')[1]]:
+                        new_m_values.append("bm." + k.split('_')[1] + ' = \'' + v + '\'')
+                elif k.split('_')[0] == 'mc':
+                    if '\'' in v:
+                        v = v.replace('\'', '\\\'')
+                    if v == 'None' or v == None or v == '':
+                        new_m_values.append("bm." + k.split('_')[1] + ' = NULL')
+                    elif self.TABLES["batting"]["main_cols"][k.split('_')[1]] == 'int':
+                        new_m_values.append("bm." + k.split('_')[1] + ' = ' + v)
+                    elif self.TABLES["batting"]["main_cols"][k.split('_')[1]]:
+                        new_m_values.append("bm." + k.split('_')[1] + ' = \'' + v + '\'')
+
+            update_teams_query += ", ".join(new_s_values)
+            update_teams_query += " WHERE "
+            update_teams_query += " AND ".join(conditions)
+
+            update_query += ", ".join(new_m_values)
+            update_query += " WHERE "
+            update_query += " AND ".join(conditions)            
             print()
+            print(update_teams_query)
             print(update_query)
+            cursor.execute(update_teams_query)
+            db.commit()
             cursor.execute(update_query)
             result = cursor.fetchall()
             db.commit()
@@ -333,6 +388,7 @@ class Batting:
             print()
             print(delete_query)
             cursor.execute(delete_query)
+            db.commit()
             delete_query = 'DELETE FROM batting_teams WHERE playerID = \'' + keys[0] + '\' AND yearID = ' + keys[1] + ' AND stint = ' + keys[2]
             cursor.execute(delete_query)
             results = cursor.fetchall()

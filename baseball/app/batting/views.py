@@ -1,7 +1,7 @@
 from flask import current_app, render_template, request, redirect, url_for, flash
 from . import batting_blueprint as app
 from app.tools import paginate
-from .search import BattingSearchForm
+from .search import BattingSearchForm, BattingUpdateForm
 
 def get_url_query(query, table):
     url_query = {}
@@ -104,43 +104,33 @@ def batting_insert():
 
 @app.route('/batting/update_form', methods=["GET", "POST"])
 def batting_update_search():
-    form = BattingSearchForm()
+    form = BattingUpdateForm()
     battings = current_app.config['BATTING']
-    key1 = request.args.get('playerID', None, type=str)
-    key2 = request.args.get('yearID', None, type=str)
-    key3 = request.args.get('stint', None, type=str)
-    query = {'playerID': key1,
-             'yearID': key2,
-             'stint': key3}
+    query = request.args.to_dict()
     batting_1 = battings.view_batting(query)[0]
+    args = {}
+    for key, value in query.items():
+        args['k_' + key] = value
     if request.method == 'GET':
         for i, (k, _) in enumerate(form.__dict__['_fields'].items()):
-            if i < len(current_app.config['BATTING'].header_type.keys()):
+            if i < len(battings.INFO['batting'].keys()):
                 form.__dict__['_fields'][k].data = batting_1[i]
     
     
     if request.method == 'POST' and form.validate_on_submit():
-        query_string = "&".join(f"{list(current_app.config['BATTING'].header_type.keys())[i]}={form.__dict__['_fields'][k].data}" for i, (k, _) in enumerate(form.__dict__['_fields'].items()) if form.__dict__['_fields'][k].data != '' and i < len(current_app.config['BATTING'].header_type.keys() ))
-        print("QUERY STRING", query_string)
-        return redirect(url_for('batting.batting_update') + f'?key1={key1}&key2={key2}&key3={key3}&{query_string}')
+        queries = request.form.to_dict()
+        queries.pop('csrf_token')
+        print(queries)
+        return redirect(url_for('batting.batting_update', **args, **queries))
     return render_template('batting.html', form = form, purpose = 'Update')
 
 @app.route('/batting/update', methods=["GET", "POST"]) #To be fixed.
 def batting_update():
     battings = current_app.config['BATTING']
-    key1 = request.args.get('key1', None, type=str)
-    key2 = request.args.get('key2', None, type=str)
-    key3 = request.args.get('key3', None, type=str)
-    keys = [key1, key2, key3]
-    #d = request.args.to_dict()
-    #d['playerID'] = d.pop('key1')
-    #d['yearID'] = d.pop('key2')
-    #d['stint'] = d.pop('key3')
-    #print(d)
-    print(request.args.to_dict())
-    queries = get_url_query(request.args.to_dict())
+    queries = request.args.to_dict()
+    queries.pop('submit')
     print(queries)
-    battings.update_batting(keys, queries)
+    battings.update_batting(queries)
     flash(f'Update successful.', 'success')
     return render_template('home.html')
     
