@@ -22,3 +22,13 @@ Week 5 (4 - 10 December):
   |_ Redirect users to the error page when a db operation fails
 |_ Fix the navigation bar and redesign it
 |_ Add ordering by column functionality to the fielding table
+
+Week 6 (11 - 17 December):
+|_ Adapt fielding to new url pattern
+
+Week 7 (18 - 24 December):
+|_ Table normalization
+  |_ Table partition
+  |_ Join queries
+|_ Modify home page
+  |_ Add carousel
